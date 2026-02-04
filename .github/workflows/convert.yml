@@ -7,7 +7,7 @@ on:
   push:
     paths:
       - "scripts/*.sh"
-      - "ruleset_sources.txt"
+      - "ruleset_sources"
 
 jobs:
   convert:
