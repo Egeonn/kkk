@@ -1,6 +1,6 @@
 #!/bin/bash
 
-output_dir="output"
+output_dir="surge_ruleset"
 
 for file in "$output_dir"/*.list; do
     name=$(basename "$file" .list)
