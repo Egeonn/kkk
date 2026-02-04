@@ -1,7 +1,7 @@
 #!/bin/bash
 
-input_dir="payload"
-output_dir="output"
+input_dir="mihomo_ruleset"
+output_dir="surge_ruleset"
 
 mkdir -p "$output_dir"
 
