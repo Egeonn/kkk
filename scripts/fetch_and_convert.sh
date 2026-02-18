@@ -12,11 +12,11 @@ while IFS= read -r line; do
     [[ -z "$line" ]] && continue
 
     # 判断是否是分组标记，例如 [666]
-    if [[ "$line" =~ ^
+    if [[ "$line" == 
 
-\[[^]]+\]
+\[*\]
 
-$ ]]; then
+ ]]; then
         # 如果已有分组，先输出结果
         if [[ -n "$group_name" && -n "$temp_all" ]]; then
             output_file="$output_dir/${group_name}.txt"
