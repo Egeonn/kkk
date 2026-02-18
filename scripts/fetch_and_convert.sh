@@ -18,14 +18,16 @@ while IFS= read -r remote_url; do
 
     curl -s -L "$remote_url" -o "$temp_file"
 
-    # 生成无引号的 payload 内容
+    # 生成无引号的 payload 内容，并删除特定规则
     new_payload=$(
       yq -r '.payload[]' "$temp_file" | \
       sed 's/^- *//' | \
       sed 's/#.*//' | \
       sed 's/ //g' | \
-      sed '/^$/d'
+      sed '/^$/d' | \
+      grep -v '^DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe$'
     )
+
     new_hash=$(echo "$new_payload" | md5sum | cut -d' ' -f1)
 
     # 检查是否变化
