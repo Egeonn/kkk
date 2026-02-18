@@ -3,7 +3,7 @@
 # RuleSet generated from remote payload
 
 # Source: https://raw.githubusercontent.com/Accademia/Additional_Rule_For_Clash/refs/heads/main/GeositeCN/GeositeCN.yaml
-# Generated at Wed Feb  4 19:06:49 UTC 2026
+# Generated at Wed Feb 18 15:35:42 UTC 2026
 
 DOMAIN-KEYWORD,-aweme-
 DOMAIN-KEYWORD,amemv.com
