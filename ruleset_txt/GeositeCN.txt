@@ -1,5 +1,5 @@
 # Merged RuleSet for GeositeCN
-# Generated at 2026-02-18 17:07:50 UTC
+# Generated at 2026-02-18 17:13:41 UTC
 # Total Rules: 4781
 
 DOMAIN-KEYWORD,-aweme-

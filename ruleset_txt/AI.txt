@@ -1,5 +1,5 @@
 # Merged RuleSet for AI
-# Generated at 2026-02-18 17:07:53 UTC
+# Generated at 2026-02-18 17:13:41 UTC
 # Total Rules: 152
 
 DOMAIN,ai.google.dev
