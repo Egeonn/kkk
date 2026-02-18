@@ -1,0 +1,44 @@
+name: Generate RuleSets
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天 UTC 2:00 运行
+  workflow_dispatch:     # 支持手动触发
+  push:
+    paths:
+      - 'ruleset_sources'
+      - 'generate_rules.sh'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
+      - name: Generate RuleSets
+        run: |
+          chmod +x generate_rules.sh
+          ./generate_rules.sh
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add ruleset_txt/
+          if ! git diff --staged --quiet; then
+            git commit -m "🔄 Auto-update rulesets $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push
+          else
+            echo "✅ 没有变化，无需提交"
+          fi
