@@ -32,20 +32,23 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     line=$(echo "$line" | xargs)
     [[ -z "$line" ]] && continue
 
-    # ✅ 修复：判断语法写在一行
+    # 判断是否是分组标记
     if [[ "$line" == \[*\] ]]; then
         if [[ -n "$group_name" ]]; then
             output_file="$output_dir/${group_name}.txt"
             if [[ -s "$temp_group_file" ]]; then
+                # ✅ 统计规则数量
+                rule_count=$(sort -u "$temp_group_file" | wc -l)
+                
                 {
                     echo "# Merged RuleSet for $group_name"
                     echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+                    echo "# Total Rules: $rule_count"
                     echo ""
                     sort -u "$temp_group_file"
                 } > "$output_file"
                 
-                count=$(wc -l < "$temp_group_file")
-                echo "✅ 分组 $group_name 已生成：$count 条规则"
+                echo "✅ 分组 $group_name 已生成：$rule_count 条规则"
             fi
             > "$temp_group_file"
         fi
@@ -82,14 +85,18 @@ done < "$source_list"
 # 处理最后一组
 if [[ -n "$group_name" && -s "$temp_group_file" ]]; then
     output_file="$output_dir/${group_name}.txt"
+    # ✅ 统计规则数量
+    rule_count=$(sort -u "$temp_group_file" | wc -l)
+    
     {
         echo "# Merged RuleSet for $group_name"
         echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        echo "# Total Rules: $rule_count"
         echo ""
         sort -u "$temp_group_file"
     } > "$output_file"
-    count=$(wc -l < "$temp_group_file")
-    echo "✅ 分组 $group_name 已生成：$count 条规则"
+    
+    echo "✅ 分组 $group_name 已生成：$rule_count 条规则"
 fi
 
 echo "🎉 所有规则集生成完成！"
