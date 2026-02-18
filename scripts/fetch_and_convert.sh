@@ -5,48 +5,60 @@ output_dir="ruleset_txt"
 
 mkdir -p "$output_dir"
 
-while IFS= read -r remote_url; do
-    [[ -z "$remote_url" ]] && continue
+group_name=""
+temp_all=""
 
+while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+
+    # 判断是否是分组标记
+    if [[ "$line" =~ ^
+
+\[.*\]
+
+$ ]]; then
+        # 如果已有分组，先输出结果
+        if [[ -n "$group_name" && -n "$temp_all" ]]; then
+            output_file="$output_dir/${group_name}.txt"
+            echo "# Merged RuleSet for $group_name" > "$output_file"
+            echo "# Generated at $(date)" >> "$output_file"
+            echo "" >> "$output_file"
+            sort -u <<< "$temp_all" >> "$output_file"
+            echo "→ 分组 $group_name 已生成：$output_file"
+        fi
+        # 开始新分组
+        group_name="${line#[}"
+        group_name="${group_name%]}"
+        temp_all=""
+        continue
+    fi
+
+    remote_url="$line"
     base=$(basename "$remote_url")
     name="${base%.*}"
-
     temp_file="${name}_remote.yaml"
-    output_file="$output_dir/$name.txt"
 
-    echo "处理规则集：$name"
+    echo "下载规则集：$name"
 
     curl -s -L "$remote_url" -o "$temp_file"
 
-    # 生成无引号的 payload 内容，并删除特定规则
-    new_payload=$(
-      yq -r '.payload[]' "$temp_file" | \
+    rules=$(yq -r '.payload[]' "$temp_file" | \
       sed 's/^- *//' | \
       sed 's/#.*//' | \
       sed 's/ //g' | \
       sed '/^$/d' | \
-      grep -v '^DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe$'
-    )
+      grep -v '^DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe$')
 
-    new_hash=$(echo "$new_payload" | md5sum | cut -d' ' -f1)
-
-    # 检查是否变化
-    if [ -f "$output_file" ]; then
-        old_hash=$(grep -v '^#' "$output_file" | md5sum | cut -d' ' -f1)
-        if [ "$old_hash" = "$new_hash" ]; then
-            echo "→ $name 无变化，跳过"
-            continue
-        fi
-    fi
-
-    # 写入新规则
-    echo "# RuleSet generated from remote payload" > "$output_file"
-    echo "# Source: $remote_url" >> "$output_file"
-    echo "# Generated at $(date)" >> "$output_file"
-    echo "" >> "$output_file"
-
-    echo "$new_payload" | sort -u >> "$output_file"
-
-    echo "→ $name 转换完成"
+    temp_all+=$'\n'"$rules"
 
 done < "$source_list"
+
+# 最后一个分组输出
+if [[ -n "$group_name" && -n "$temp_all" ]]; then
+    output_file="$output_dir/${group_name}.txt"
+    echo "# Merged RuleSet for $group_name" > "$output_file"
+    echo "# Generated at $(date)" >> "$output_file"
+    echo "" >> "$output_file"
+    sort -u <<< "$temp_all" >> "$output_file"
+    echo "→ 分组 $group_name 已生成：$output_file"
+fi
