@@ -44,53 +44,6 @@ extract_rules() {
     echo "$content"
 }
 
-# ✅ 标准化规则格式
-normalize_rule() {
-    local rule="$1"
-    
-    # 移除前后空格
-    rule=$(echo "$rule" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    
-    # 跳过空行
-    [[ -z "$rule" ]] && return
-    
-    # ✅ 跳过注释行（# 开头）
-    [[ "$rule" == \#* ]] && return
-    
-    # 跳过水印规则
-    [[ "$rule" == *"7h1s_rul35et_i5_mad3_by_5ukk4w"* ]] && return
-    
-    # ✅ 检测是否已有标准前缀
-    if echo "$rule" | grep -qE '^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|GEOIP|PROCESS-NAME),'; then
-        # 已有前缀，只修复逗号空格
-        echo "$rule" | sed 's/ *, */,/g'
-        return
-    fi
-    
-    # ✅ 处理 +. 开头的域名（通配符）→ DOMAIN-SUFFIX
-    if [[ "$rule" == +.* ]]; then
-        domain="${rule#+.}"
-        echo "DOMAIN-SUFFIX,$domain"
-        return
-    fi
-    
-    # ✅ 处理 *. 开头的域名（通配符）→ DOMAIN-SUFFIX
-    if [[ "$rule" == \*.* ]]; then
-        domain="${rule#\*.}"
-        echo "DOMAIN-SUFFIX,$domain"
-        return
-    fi
-    
-    # ✅ 纯域名（无逗号，包含点，无通配符）→ DOMAIN
-    if [[ "$rule" != *,* ]] && [[ "$rule" == *.* ]] && [[ "$rule" != +* ]] && [[ "$rule" != \** ]]; then
-        echo "DOMAIN,$rule"
-        return
-    fi
-    
-    # ✅ 其他格式，保持原样（修复逗号空格）
-    echo "$rule" | sed 's/ *, */,/g'
-}
-
 while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" ]] && continue
     line=$(echo "$line" | xargs)
@@ -101,6 +54,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ -n "$group_name" ]]; then
             output_file="$output_dir/${group_name}.txt"
             if [[ -s "$temp_group_file" ]]; then
+                # ✅ 去重并统计
                 rule_count=$(sort -u "$temp_group_file" | wc -l)
                 total_rules=$((total_rules + rule_count))
                 
@@ -138,7 +92,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     fi
 
     file_size=$(wc -c < "$temp_file")
-    if [[ "$file_size" -lt 50 ]]; then
+    if [[ "$file_size" -lt 100 ]]; then
         echo "  ⚠️ 文件过小 ($file_size 字节)，可能下载失败"
         rm -f "$temp_file"
         continue
@@ -152,24 +106,20 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         continue
     fi
 
-    rule_count=$(echo "$rules" | grep -v '^$' | wc -l)
+    rule_count=$(echo "$rules" | wc -l)
     echo "  📊 原始规则：$rule_count 条"
 
-    # ✅ 逐行处理规则，标准化格式
-    while IFS= read -r rule; do
-        # 清理：中文逗号、空格、YAML 前缀等
-        clean_rule=$(echo "$rule" | \
-          sed 's/，/,/g' | \
-          sed 's/ / /g' | \
-          sed 's/^[-•*] *//' | \
-          sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        
-        # 标准化并追加
-        normalized=$(normalize_rule "$clean_rule")
-        if [[ -n "$normalized" ]]; then
-            echo "$normalized" >> "$temp_group_file"
-        fi
-    done <<< "$rules"
+    # ✅ 规则清理（修复中文逗号、空格等问题）
+    echo "$rules" | \
+      sed 's/，/,/g' | \
+      sed 's/ / /g' | \
+      sed 's/^[-•*] *//' | \
+      sed 's/#.*//' | \
+      sed 's/ *, */,/g' | \
+      sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
+      sed '/^$/d' | \
+      grep -v '^DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe$' \
+      >> "$temp_group_file" || true
 
     rm -f "$temp_file"
 done < "$source_list"
