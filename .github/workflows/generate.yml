@@ -21,7 +21,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install yq (optional for YAML support)
+      - name: Install yq (optional)
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq 2>/dev/null || true
           sudo chmod +x /usr/bin/yq 2>/dev/null || true
