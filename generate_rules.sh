@@ -15,7 +15,6 @@ mkdir -p "$output_dir"
 group_name=""
 temp_group_file=$(mktemp)
 total_rules=0
-total_dedup=0
 
 cleanup() {
     rm -f "$temp_group_file"
@@ -55,30 +54,19 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ -n "$group_name" ]]; then
             output_file="$output_dir/${group_name}.txt"
             if [[ -s "$temp_group_file" ]]; then
-                # 去重统计
-                raw_count=$(wc -l < "$temp_group_file")
+                # ✅ 去重并统计
                 rule_count=$(sort -u "$temp_group_file" | wc -l)
-                dedup_count=$((raw_count - rule_count))
-                
                 total_rules=$((total_rules + rule_count))
-                total_dedup=$((total_dedup + dedup_count))
                 
                 {
                     echo "# Merged RuleSet for $group_name"
                     echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
                     echo "# Total Rules: $rule_count"
-                    if [[ "$dedup_count" -gt 0 ]]; then
-                        echo "# Duplicates Removed: $dedup_count"
-                    fi
                     echo ""
                     sort -u "$temp_group_file"
                 } > "$output_file"
                 
-                if [[ "$dedup_count" -gt 0 ]]; then
-                    echo "✅ 分组 $group_name 已生成：$rule_count 条规则 (去重 $dedup_count 条)"
-                else
-                    echo "✅ 分组 $group_name 已生成：$rule_count 条规则"
-                fi
+                echo "✅ 分组 $group_name 已生成：$rule_count 条规则"
             else
                 echo "⚠️ 警告：分组 $group_name 没有规则，跳过生成"
             fi
@@ -121,23 +109,15 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     rule_count=$(echo "$rules" | wc -l)
     echo "  📊 原始规则：$rule_count 条"
 
-    # ✅ 增强版规则清理（修复中文逗号问题）
+    # ✅ 规则清理（修复中文逗号、空格等问题）
     echo "$rules" | \
-      # 1. 中文全角逗号 → 英文半角逗号
       sed 's/，/,/g' | \
-      # 2. 中文全角空格 → 英文半角空格
       sed 's/ / /g' | \
-      # 3. 移除 YAML 列表前缀 (- 或 •)
       sed 's/^[-•*] *//' | \
-      # 4. 移除行内注释
       sed 's/#.*//' | \
-      # 5. 移除逗号前后所有空格（关键修复！）
       sed 's/ *, */,/g' | \
-      # 6. 移除行首行尾空格
       sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
-      # 7. 删除空行
       sed '/^$/d' | \
-      # 8. 移除水印规则
       grep -v '^DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe$' \
       >> "$temp_group_file" || true
 
@@ -147,29 +127,18 @@ done < "$source_list"
 # 处理最后一组
 if [[ -n "$group_name" && -s "$temp_group_file" ]]; then
     output_file="$output_dir/${group_name}.txt"
-    raw_count=$(wc -l < "$temp_group_file")
     rule_count=$(sort -u "$temp_group_file" | wc -l)
-    dedup_count=$((raw_count - rule_count))
-    
     total_rules=$((total_rules + rule_count))
-    total_dedup=$((total_dedup + dedup_count))
     
     {
         echo "# Merged RuleSet for $group_name"
         echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
         echo "# Total Rules: $rule_count"
-        if [[ "$dedup_count" -gt 0 ]]; then
-            echo "# Duplicates Removed: $dedup_count"
-        fi
         echo ""
         sort -u "$temp_group_file"
     } > "$output_file"
     
-    if [[ "$dedup_count" -gt 0 ]]; then
-        echo "✅ 分组 $group_name 已生成：$rule_count 条规则 (去重 $dedup_count 条)"
-    else
-        echo "✅ 分组 $group_name 已生成：$rule_count 条规则"
-    fi
+    echo "✅ 分组 $group_name 已生成：$rule_count 条规则"
 elif [[ -n "$group_name" ]]; then
     echo "⚠️ 警告：分组 $group_name 没有规则，跳过生成"
 fi
@@ -177,6 +146,3 @@ fi
 echo ""
 echo "🎉 所有规则集生成完成！"
 echo "📈 总计生成：$total_rules 条规则"
-if [[ "$total_dedup" -gt 0 ]]; then
-    echo "🗑️ 总计去重：$total_dedup 条重复规则"
-fi
