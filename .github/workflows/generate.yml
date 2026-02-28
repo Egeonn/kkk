@@ -2,7 +2,7 @@ name: Generate RuleSets
 
 on:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '*/5 * * * *'  # 每 5 分钟运行一次（测试用）
   workflow_dispatch:
   push:
     paths:
