@@ -1,5 +1,5 @@
 # Merged RuleSet for Telegram
-# Generated at 2026-02-18 17:13:41 UTC
+# Generated at 2026-02-28 03:40:21 UTC
 # Total Rules: 31
 
 DOMAIN-SUFFIX,cdn-telegram.org
