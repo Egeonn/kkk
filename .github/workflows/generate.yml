@@ -1,19 +1,28 @@
 name: Generate RuleSets
 
 on:
-  push:
-    branches: [ ovo ]  # ✅ 改为 branches 不是 paths
-  workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'  # ✅ 双引号（和别人的格式一致）
+    - cron: "0 */12 * * *"  # 每天 UTC 2:00
+  workflow_dispatch:
+  push:
+    branches: [ ovo ]  # ✅ 改为 ovo 分支
+    paths:
+      - 'ruleset_sources'
+      - 'generate_rules.sh'
+
+permissions:
+  contents: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
-      - uses: actions/checkout@v2  # ✅ 用 v2 和别人一致
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ovo  # ✅ 明确检出 ovo 分支
+          fetch-depth: 0
 
       - name: Fix Line Endings
         run: |
@@ -22,6 +31,7 @@ jobs:
 
       - name: Install yq (optional)
         run: |
+          # ✅ 修复：删除 URL 多余空格
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq 2>/dev/null || true
           sudo chmod +x /usr/bin/yq 2>/dev/null || true
 
@@ -32,15 +42,12 @@ jobs:
 
       - name: Commit and Push
         run: |
-          git config --global user.email "action@github.com"  # ✅ 和别人一致
-          git config --global user.name "GitHub Action"
-
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add ruleset_txt/
-
-          if git diff --staged --quiet; then  # ✅ 和别人的逻辑一致
-            echo "No changes to commit"
-            exit 0
+          if ! git diff --staged --quiet; then
+            git commit -m "🔄 Auto-update rulesets $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push origin ovo  # ✅ 推送到 ovo 分支
           else
-            git commit -m "Update rules"  # ✅ 简化 commit 信息
-            git push
+            echo "✅ 没有变化，无需提交"
           fi
