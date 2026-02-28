@@ -42,52 +42,6 @@ extract_rules() {
     echo "$content"
 }
 
-# ✅ 标准化规则格式（核心函数！）
-normalize_rule() {
-    local rule="$1"
-    
-    # 移除前后空格
-    rule=$(echo "$rule" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    
-    # 跳过空行
-    [[ -z "$rule" ]] && return
-    
-    # ✅ 跳过注释行（# 开头）
-    [[ "$rule" == \#* ]] && return
-    
-    # 跳过水印规则
-    [[ "$rule" == *"7h1s_rul35et_i5_mad3_by_5ukk4w"* ]] && return
-    
-    # ✅ 检测是否已有标准前缀
-    if echo "$rule" | grep -qE '^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|GEOIP|PROCESS-NAME),'; then
-        echo "$rule" | sed 's/ *, */,/g'
-        return
-    fi
-    
-    # ✅ 处理 +. 开头的域名 → DOMAIN-SUFFIX
-    if [[ "$rule" == +.* ]]; then
-        domain="${rule#+.}"
-        echo "DOMAIN-SUFFIX,$domain"
-        return
-    fi
-    
-    # ✅ 处理 *. 开头的域名 → DOMAIN-SUFFIX
-    if [[ "$rule" == \*.* ]]; then
-        domain="${rule#\*.}"
-        echo "DOMAIN-SUFFIX,$domain"
-        return
-    fi
-    
-    # ✅ 纯域名（无逗号，包含点）→ DOMAIN
-    if [[ "$rule" != *,* ]] && [[ "$rule" == *.* ]]; then
-        echo "DOMAIN,$rule"
-        return
-    fi
-    
-    # 其他格式，保持原样
-    echo "$rule" | sed 's/ *, */,/g'
-}
-
 while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" ]] && continue
     line=$(echo "$line" | xargs)
@@ -128,7 +82,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
     echo "⬇️ 下载：$name"
 
-    if ! curl -s -L --fail --retry 3 "$remote_url" -o "$temp_file"; then
+    # ✅ 增加超时时间和重试次数
+    if ! curl -s -L --fail --retry 3 --retry-delay 5 --connect-timeout 30 --max-time 300 "$remote_url" -o "$temp_file"; then
         echo "⚠️ 下载失败：$remote_url"
         continue
     fi
@@ -148,23 +103,24 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         continue
     fi
 
-    rule_count=$(echo "$rules" | grep -v '^$' | wc -l)
+    rule_count=$(echo "$rules" | grep -c '.' || echo 0)
     echo "  📊 原始规则：$rule_count 条"
 
-    # ✅ 逐行处理规则，调用 normalize_rule
-    while IFS= read -r rule; do
-        # 基础清理
-        clean_rule=$(echo "$rule" | \
-          sed 's/，/,/g' | \
-          sed 's/^[-•*] *//' | \
-          sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        
-        # ✅ 标准化（添加前缀、跳过注释）
-        normalized=$(normalize_rule "$clean_rule")
-        if [[ -n "$normalized" ]]; then
-            echo "$normalized" >> "$temp_group_file"
-        fi
-    done <<< "$rules"
+    # ✅ 批量处理规则（性能优化关键！）
+    # 使用管道批量处理，避免逐行调用函数
+    echo "$rules" | \
+      sed 's/，/,/g' | \
+      sed 's/^[-•*] *//' | \
+      sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
+      sed '/^$/d' | \
+      sed '/^#/d' | \
+      sed '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' | \
+      sed 's/ *, */,/g' | \
+      sed -E 's/^\+\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' | \
+      sed -E 's/^\*\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' | \
+      sed -E '/^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/' | \
+      sed -E '/^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|GEOIP|PROCESS-NAME),/!s/ *, */,/g' \
+      >> "$temp_group_file" || true
 
     rm -f "$temp_file"
 done < "$source_list"
