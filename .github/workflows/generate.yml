@@ -27,6 +27,7 @@ jobs:
 
       - name: Install yq (optional)
         run: |
+          # ✅ 修复：删除 URL 多余空格
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq 2>/dev/null || true
           sudo chmod +x /usr/bin/yq 2>/dev/null || true
 
