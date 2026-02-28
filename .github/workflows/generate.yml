@@ -2,7 +2,7 @@ name: Generate RuleSets
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # 每天 UTC 2:00
+    - cron: '*/5 * * * *'  # 每天 UTC 2:00
   workflow_dispatch:
   push:
     branches: [ ovo ]  # ✅ 改为 ovo 分支
