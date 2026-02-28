@@ -21,6 +21,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fix Line Endings
+        run: |
+          # ✅ 转换所有脚本文件为 Unix 换行符
+          find . -name "*.sh" -type f -exec sed -i 's/\r$//' {} \;
+          chmod +x *.sh
+
       - name: Install yq (optional)
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq 2>/dev/null || true
