@@ -2,9 +2,10 @@ name: Generate RuleSets
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # 每 5 分钟运行一次（测试用）
+    - cron: '0 2 * * *'  # 每天 UTC 2:00
   workflow_dispatch:
   push:
+    branches: [ ovo ]  # ✅ 改为 ovo 分支
     paths:
       - 'ruleset_sources'
       - 'generate_rules.sh'
@@ -15,20 +16,22 @@ permissions:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ovo  # ✅ 明确检出 ovo 分支
           fetch-depth: 0
 
       - name: Fix Line Endings
         run: |
-          # ✅ 转换所有脚本文件为 Unix 换行符
           find . -name "*.sh" -type f -exec sed -i 's/\r$//' {} \;
-          chmod +x *.sh
+          find . -name "*.sh" -type f -exec chmod +x {} \;
 
       - name: Install yq (optional)
         run: |
+          # ✅ 修复：删除 URL 多余空格
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq 2>/dev/null || true
           sudo chmod +x /usr/bin/yq 2>/dev/null || true
 
@@ -44,7 +47,7 @@ jobs:
           git add ruleset_txt/
           if ! git diff --staged --quiet; then
             git commit -m "🔄 Auto-update rulesets $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-            git push
+            git push origin ovo  # ✅ 推送到 ovo 分支
           else
             echo "✅ 没有变化，无需提交"
           fi
