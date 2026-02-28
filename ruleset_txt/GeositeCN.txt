@@ -1,6 +1,6 @@
 # Merged RuleSet for GeositeCN
-# Generated at 2026-02-28 05:44:12 UTC
-# Total Rules: 4812
+# Generated at 2026-02-28 05:45:09 UTC
+# Total Rules: 4781
 
 DOMAIN-KEYWORD,-aweme-
 DOMAIN-KEYWORD,amemv.com
@@ -994,7 +994,6 @@ DOMAIN-SUFFIX,cctv.com
 DOMAIN-SUFFIX,cctvpic.com
 DOMAIN-SUFFIX,cczq.com
 DOMAIN-SUFFIX,cczq.net
-DOMAIN-SUFFIX,cdn-telegram.org
 DOMAIN-SUFFIX,cdn20.com
 DOMAIN-SUFFIX,cdn30.org
 DOMAIN-SUFFIX,cdnbuild.com
@@ -1940,7 +1939,6 @@ DOMAIN-SUFFIX,govqcloud.com
 DOMAIN-SUFFIX,gowinamc.com
 DOMAIN-SUFFIX,gpall.net
 DOMAIN-SUFFIX,gracg.com
-DOMAIN-SUFFIX,graph.org
 DOMAIN-SUFFIX,gree.com
 DOMAIN-SUFFIX,greeyun.com
 DOMAIN-SUFFIX,growingio.com
@@ -2717,7 +2715,6 @@ DOMAIN-SUFFIX,leautolink.com
 DOMAIN-SUFFIX,lecloud.com
 DOMAIN-SUFFIX,ledu.com
 DOMAIN-SUFFIX,leetcode-cn.com
-DOMAIN-SUFFIX,legra.ph
 DOMAIN-SUFFIX,leigod.com
 DOMAIN-SUFFIX,leikeji.com
 DOMAIN-SUFFIX,leiniao.com
@@ -3717,7 +3714,6 @@ DOMAIN-SUFFIX,szbdyd.com
 DOMAIN-SUFFIX,szhk.com
 DOMAIN-SUFFIX,szlcsc.com
 DOMAIN-SUFFIX,szzfgjj.com
-DOMAIN-SUFFIX,t.me
 DOMAIN-SUFFIX,t00ls.net
 DOMAIN-SUFFIX,t1tms.com
 DOMAIN-SUFFIX,t8tms.com
@@ -3782,7 +3778,6 @@ DOMAIN-SUFFIX,tcloudscdn.net
 DOMAIN-SUFFIX,tcltech.com
 DOMAIN-SUFFIX,tcss.qq.com
 DOMAIN-SUFFIX,tcwqqdy.guru
-DOMAIN-SUFFIX,tdesktop.com
 DOMAIN-SUFFIX,tdnsv1.com
 DOMAIN-SUFFIX,tdnsv1.net
 DOMAIN-SUFFIX,tdnsv10.com
@@ -3822,13 +3817,6 @@ DOMAIN-SUFFIX,techo.chat
 DOMAIN-SUFFIX,tefscloud.com
 DOMAIN-SUFFIX,tefscloud.net
 DOMAIN-SUFFIX,tekkenthree.com
-DOMAIN-SUFFIX,telega.one
-DOMAIN-SUFFIX,telegra.ph
-DOMAIN-SUFFIX,telegram.dog
-DOMAIN-SUFFIX,telegram.me
-DOMAIN-SUFFIX,telegram.org
-DOMAIN-SUFFIX,telegram.space
-DOMAIN-SUFFIX,telesco.pe
 DOMAIN-SUFFIX,tenant-zone-dev.com
 DOMAIN-SUFFIX,tencdns.net
 DOMAIN-SUFFIX,tencent-cloud.com
@@ -3879,7 +3867,6 @@ DOMAIN-SUFFIX,texasholdemcup.com
 DOMAIN-SUFFIX,texasholdemcup.net
 DOMAIN-SUFFIX,tfogc.com
 DOMAIN-SUFFIX,tfzq.com
-DOMAIN-SUFFIX,tg.dev
 DOMAIN-SUFFIX,tgbus.com
 DOMAIN-SUFFIX,tgovcloud.com
 DOMAIN-SUFFIX,tgpro.top
@@ -4025,7 +4012,6 @@ DOMAIN-SUFFIX,tuyoo.com
 DOMAIN-SUFFIX,tvmao.com
 DOMAIN-SUFFIX,tvzhe.com
 DOMAIN-SUFFIX,tx-exhibition.com
-DOMAIN-SUFFIX,tx.me
 DOMAIN-SUFFIX,txbyod.com
 DOMAIN-SUFFIX,txidc.wang
 DOMAIN-SUFFIX,txlivecdn.com
@@ -4797,20 +4783,3 @@ DOMAIN-SUFFIX,zyh365.com
 DOMAIN-SUFFIX,zz.bdstatic.com
 DOMAIN-SUFFIX,zzdtec.com
 DOMAIN-SUFFIX,zztfly.com
-IP-CIDR,139.59.210.98/32,no-resolve
-IP-CIDR,149.154.160.0/20,no-resolve
-IP-CIDR,185.76.151.0/24,no-resolve
-IP-CIDR,196.55.216.167/32,no-resolve
-IP-CIDR,5.28.195.2/32,no-resolve
-IP-CIDR,5.28.195.4/32,no-resolve
-IP-CIDR,91.105.192.0/23,no-resolve
-IP-CIDR,91.108.16.0/21,no-resolve
-IP-CIDR,91.108.4.0/22,no-resolve
-IP-CIDR,91.108.56.0/22,no-resolve
-IP-CIDR,91.108.8.0/21,no-resolve
-IP-CIDR,95.161.64.0/20,no-resolve
-IP-CIDR6,2001:67c:4e8::/48,no-resolve
-IP-CIDR6,2001:b28:f23c::/48,no-resolve
-IP-CIDR6,2001:b28:f23d::/48,no-resolve
-IP-CIDR6,2001:b28:f23f::/48,no-resolve
-IP-CIDR6,2a0a:f280::/32,no-resolve
