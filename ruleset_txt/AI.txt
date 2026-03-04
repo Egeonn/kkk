@@ -1,6 +1,6 @@
 # Merged RuleSet for AI
-# Generated at 2026-02-28 05:53:03 UTC
-# Total Rules: 133
+# Generated at 2026-03-04 02:44:05 UTC
+# Total Rules: 134
 
 DOMAIN,ai.google.dev
 DOMAIN,aida.googleapis.com
@@ -65,6 +65,7 @@ DOMAIN-SUFFIX,deepmind.com
 DOMAIN-SUFFIX,deepmind.google
 DOMAIN-SUFFIX,devin.ai
 DOMAIN-SUFFIX,diabrowser.com
+DOMAIN-SUFFIX,diabrowser.engineering
 DOMAIN-SUFFIX,dify.ai
 DOMAIN-SUFFIX,dola.com
 DOMAIN-SUFFIX,duck.ai
