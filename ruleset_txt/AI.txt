@@ -1,6 +1,6 @@
 # Merged RuleSet for AI
-# Generated at 2026-03-13 02:46:22 UTC
-# Total Rules: 159
+# Generated at 2026-03-15 13:11:36 UTC
+# Total Rules: 160
 
 DOMAIN,ai.google.dev
 DOMAIN,aida.googleapis.com
@@ -153,6 +153,7 @@ DOMAIN-SUFFIX,pplx.ai
 DOMAIN-SUFFIX,proactivebackend-pa.googleapis.com
 DOMAIN-SUFFIX,robinfrontend-pa.googleapis.com
 DOMAIN-SUFFIX,sora.com
+DOMAIN-SUFFIX,spicywriter.com
 DOMAIN-SUFFIX,trae.ai
 DOMAIN-SUFFIX,turn.livekit.cloud
 DOMAIN-SUFFIX,windsurf.build
