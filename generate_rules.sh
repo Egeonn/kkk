@@ -46,38 +46,43 @@ save_group() {
     local name="$1"
     local temp_file="$2"
 
-    if [[ -s "$temp_file" ]]; then
-        local output_file="$output_dir/${name}.txt"
-        local rule_count
-        rule_count=$(sort -u "$temp_file" | wc -l)
+    if [[ ! -s "$temp_file" ]]; then
+        echo "⚠️ 警告：分组 $name 没有规则"
+        return 1
+    fi
 
-        local temp_content
-        temp_content=$(mktemp)
-        sort -u "$temp_file" > "$temp_content"
+    local output_file="$output_dir/${name}.txt"
+    local mrs_file="$output_dir/${name}.mrs"
 
-        local changed=false
+    local temp_content
+    temp_content=$(mktemp)
 
-        if [[ -f "$output_file" ]]; then
-            local existing_content
-            existing_content=$(tail -n +5 "$output_file" | sort -u)
-            local new_content
-            new_content=$(cat "$temp_content")
+    sort -u "$temp_file" > "$temp_content"
+    local rule_count
+    rule_count=$(wc -l < "$temp_content")
 
-            if [[ "$existing_content" == "$new_content" ]]; then
-                echo "⏭️ 分组 $name 无变化，跳过"
-                rm -f "$temp_content"
-                return 1
-            else
-                echo "📝 分组 $name 有更新"
-                has_changes=true
-                changed=true
-            fi
+    local changed=false
+
+    if [[ -f "$output_file" ]]; then
+        local existing_content
+        existing_content=$(tail -n +5 "$output_file" | sort -u)
+
+        if [[ "$existing_content" == "$(cat "$temp_content")" ]]; then
+            echo "⏭️ 分组 $name 无变化"
+            changed=false
         else
-            echo "📝 分组 $name 首次生成"
+            echo "📝 分组 $name 有更新"
             has_changes=true
             changed=true
         fi
+    else
+        echo "📝 分组 $name 首次生成"
+        has_changes=true
+        changed=true
+    fi
 
+    # ✅ 仅当有变化才更新 TXT（避免无意义 commit）
+    if [[ "$changed" == true ]]; then
         {
             echo "# Merged RuleSet for $name"
             echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
@@ -86,35 +91,34 @@ save_group() {
             cat "$temp_content"
         } > "$output_file"
 
-        echo "✅ TXT 已生成：$output_file ($rule_count 条)"
+        echo "✅ TXT 已更新：$output_file ($rule_count 条)"
+    else
+        echo "⏭️ TXT 无变化，跳过写入"
+    fi
 
-        # ==============================
-        # ✅ 生成 Mihomo MRS（二进制）
-        # ==============================
-        if [[ "$changed" == true ]]; then
-            if command -v mihomo &> /dev/null; then
-                local mrs_file="$output_dir/${name}.mrs"
+    # ==============================
+    # ✅ MRS 生成逻辑（关键修复）
+    # ==============================
+    if command -v mihomo &> /dev/null; then
+        if [[ "$changed" == true || ! -f "$mrs_file" ]]; then
+            echo "⚙️ 生成 MRS：$name"
 
-                if mihomo convert-ruleset text "$output_file" "$mrs_file" 2>/dev/null; then
-                    echo "📦 MRS 已生成：$mrs_file"
-                else
-                    echo "⚠️ MRS 生成失败：$name"
-                fi
+            if mihomo convert-ruleset text "$output_file" "$mrs_file" 2>/dev/null; then
+                echo "📦 MRS 已生成：$mrs_file"
             else
-                echo "⚠️ 未检测到 mihomo，跳过 MRS 生成"
+                echo "⚠️ MRS 生成失败：$name"
             fi
         else
-            echo "⏭️ 未变化，跳过 MRS 编译"
+            echo "⏭️ TXT 无变化且 MRS 已存在，跳过"
         fi
-
-        rm -f "$temp_content"
-
-        total_rules=$((total_rules + rule_count))
-        return 0
     else
-        echo "⚠️ 警告：分组 $name 没有规则"
-        return 1
+        echo "⚠️ 未检测到 mihomo，跳过 MRS 生成"
     fi
+
+    total_rules=$((total_rules + rule_count))
+
+    rm -f "$temp_content"
+    return 0
 }
 
 while IFS= read -r line || [[ -n "$line" ]]; do
