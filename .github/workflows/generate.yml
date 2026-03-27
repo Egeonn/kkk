@@ -1,48 +1,49 @@
 name: Generate RuleSets
+
 on:
   schedule:
-    - cron: "0 */12 * * *"   # 每6小时
+    - cron: '0 */12 * * *'
   workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  generate:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 30
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # ✅ 安装 mihomo（关键！）
-      - name: 📦 Install Mihomo
+      - name: Fix Line Endings
         run: |
-          wget -O mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.21/mihomo-linux-amd64-v1-go120-v1.19.21.gz
-          gunzip mihomo.gz
-          chmod +x mihomo
-          sudo mv mihomo /usr/local/bin/mihomo
+          find . -name "*.sh" -type f -exec sed -i 's/\r$//' {} \;
+          find . -name "*.sh" -type f -exec chmod +x {} \;
 
-      # ✅ 可选：安装 yq（解析 YAML）
-      - name: 📦 Install yq
+      - name: Install yq (optional)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y yq
+          # ✅ 修复：删除 URL 多余空格
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq 2>/dev/null || true
+          sudo chmod +x /usr/bin/yq 2>/dev/null || true
 
-      # ✅ 执行你的脚本
-      - name: 🚀 Run Script
+      - name: Generate RuleSets
         run: |
           chmod +x generate_rules.sh
           ./generate_rules.sh
 
-      # ✅ 提交变更
-      - name: 📤 Commit & Push
+      - name: Commit and Push
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-
-          git add ruleset_txt
-
-          if git diff --cached --quiet; then
-            echo "✅ 无变化"
-          else
-            git commit -m "Update ruleset $(date -u '+%Y-%m-%d %H:%M:%S')"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add ruleset_txt/
+          if ! git diff --staged --quiet; then
+            git commit -m "🔄 Auto-update rulesets $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
             git push
+          else
+            echo "✅ 没有变化，无需提交"
           fi
