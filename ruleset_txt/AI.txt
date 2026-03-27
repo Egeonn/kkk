@@ -1,6 +1,6 @@
 # Merged RuleSet for AI
-# Generated at 2026-03-22 03:14:09 UTC
-# Total Rules: 161
+# Generated at 2026-03-27 03:22:36 UTC
+# Total Rules: 162
 
 DOMAIN,ai.google.dev
 DOMAIN,aida.googleapis.com
@@ -34,6 +34,7 @@ DOMAIN,robinfrontend-pa.googleapis.com
 DOMAIN,servd-anthropic-website.b-cdn.net
 DOMAIN,sydney.bing.com
 DOMAIN,webchannel-alkalimakersuite-pa.clients6.google.com
+DOMAIN,www.google.com
 DOMAIN-KEYWORD,alkalimakersuite-pa.clients6.google.com
 DOMAIN-KEYWORD,anthropic
 DOMAIN-KEYWORD,claude
