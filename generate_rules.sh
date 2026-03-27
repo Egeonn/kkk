@@ -72,7 +72,7 @@ save_group() {
     fi
 }
 
-# ✅ 修复：添加 -E 标志（扩展正则表达式）
+# ✅ 优化：添加 DOMAIN-REGEX 过滤
 process_rules() {
     sed -E \
         -e 's/，/,/g' \
@@ -81,6 +81,7 @@ process_rules() {
         -e '/^$/d' \
         -e '/^#/d' \
         -e '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' \
+        -e '/^DOMAIN-REGEX,/d' \
         -e 's/ *, */,/g' \
         -e 's/^\+\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' \
         -e 's/^\*\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' \
@@ -129,7 +130,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     rule_count=$(printf '%s\n' "$rules" | grep -c '.' 2>/dev/null || echo 0)
     echo "  📊 原始规则：$rule_count 条"
 
-    # ✅ 修复：添加 || true 防止管道断裂
     printf '%s\n' "$rules" | process_rules >> "$temp_group_file" 2>/dev/null || true
     rm -f "$temp_file"
 done < "$source_list"
