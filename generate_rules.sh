@@ -1,21 +1,18 @@
 #!/bin/bash
 
-set -euo pipefail
-
-source_list="ruleset_sources"
-output_dir="ruleset_txt"
-
-if [[ ! -f "$source_list" ]]; then
-    echo "❌ 错误：找不到 $source_list 文件"
-    exit 1
-fi
-
-mkdir -p "$output_dir"
-
+source_list="${SOURCE_LIST:-./ruleset_sources}"
+output_dir="${OUTPUT_DIR:-./ruleset_txt}"
 group_name=""
 temp_group_file=$(mktemp)
 total_rules=0
 has_changes=false
+
+if [[ ! -f "$source_list" ]]; then
+    echo "❌ 错误：$source_list 不存在"
+    exit 1
+fi
+
+mkdir -p "$output_dir"
 
 cleanup() {
     rm -f "$temp_group_file"
@@ -39,50 +36,35 @@ extract_rules() {
         content=$(cat "$file")
     fi
 
-    echo "$content"
+    printf '%s\n' "$content"  # ✅ 修复 echo 问题
 }
 
 save_group() {
     local name="$1"
     local temp_file="$2"
-
-    if [[ ! -s "$temp_file" ]]; then
-        echo "⚠️ 警告：分组 $name 没有规则"
-        return 1
-    fi
-
-    local output_file="$output_dir/${name}.txt"
-    local mrs_file="$output_dir/${name}.mrs"
-
-    local temp_content
-    temp_content=$(mktemp)
-
-    sort -u "$temp_file" > "$temp_content"
-    local rule_count
-    rule_count=$(wc -l < "$temp_content")
-
-    local changed=false
-
-    if [[ -f "$output_file" ]]; then
-        local existing_content
-        existing_content=$(tail -n +5 "$output_file" | sort -u)
-
-        if [[ "$existing_content" == "$(cat "$temp_content")" ]]; then
-            echo "⏭️ 分组 $name 无变化"
-            changed=false
+    
+    if [[ -s "$temp_file" ]]; then
+        local output_file="$output_dir/${name}.txt"
+        local rule_count=$(grep -c '.' "$temp_file" 2>/dev/null || echo 0)
+        
+        local temp_content=$(mktemp)
+        sort -u "$temp_file" > "$temp_content"
+        
+        if [[ -f "$output_file" ]]; then
+            # ✅ 使用 diff 比较，避免大文件内存问题
+            if diff -q <(tail -n +5 "$output_file" | sort -u) "$temp_content" > /dev/null 2>&1; then
+                echo "⏭️ 分组 $name 无变化，跳过"
+                rm -f "$temp_content"
+                return 1
+            else
+                echo "📝 分组 $name 有更新"
+                has_changes=true
+            fi
         else
-            echo "📝 分组 $name 有更新"
+            echo "📝 分组 $name 首次生成"
             has_changes=true
-            changed=true
         fi
-    else
-        echo "📝 分组 $name 首次生成"
-        has_changes=true
-        changed=true
-    fi
-
-    # ✅ 仅当有变化才更新 TXT（避免无意义 commit）
-    if [[ "$changed" == true ]]; then
+        
         {
             echo "# Merged RuleSet for $name"
             echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
@@ -90,35 +72,15 @@ save_group() {
             echo ""
             cat "$temp_content"
         } > "$output_file"
-
-        echo "✅ TXT 已更新：$output_file ($rule_count 条)"
+        
+        rm -f "$temp_content"
+        total_rules=$((total_rules + rule_count))
+        echo "✅ 分组 $name 已生成：$rule_count 条规则"
+        return 0
     else
-        echo "⏭️ TXT 无变化，跳过写入"
+        echo "⚠️ 警告：分组 $name 没有规则，跳过生成"
+        return 1
     fi
-
-    # ==============================
-    # ✅ MRS 生成逻辑（关键修复）
-    # ==============================
-    if command -v mihomo &> /dev/null; then
-        if [[ "$changed" == true || ! -f "$mrs_file" ]]; then
-            echo "⚙️ 生成 MRS：$name"
-
-            if mihomo convert-ruleset text "$output_file" "$mrs_file" 2>/dev/null; then
-                echo "📦 MRS 已生成：$mrs_file"
-            else
-                echo "⚠️ MRS 生成失败：$name"
-            fi
-        else
-            echo "⏭️ TXT 无变化且 MRS 已存在，跳过"
-        fi
-    else
-        echo "⚠️ 未检测到 mihomo，跳过 MRS 生成"
-    fi
-
-    total_rules=$((total_rules + rule_count))
-
-    rm -f "$temp_content"
-    return 0
 }
 
 while IFS= read -r line || [[ -n "$line" ]]; do
@@ -130,13 +92,10 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         if [[ -n "$group_name" ]]; then
             save_group "$group_name" "$temp_group_file" || true
         fi
-
         group_name="${line#[}"
         group_name="${group_name%]}"
         group_name=$(echo "$group_name" | xargs)
-
         > "$temp_group_file"
-
         echo "📁 开始分组：$group_name"
         continue
     fi
@@ -156,7 +115,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
     file_size=$(wc -c < "$temp_file")
     if [[ "$file_size" -lt 100 ]]; then
-        echo "⚠️ 文件过小 ($file_size 字节)，跳过"
+        echo "  ⚠️ 文件过小 ($file_size 字节)，可能下载失败"
         rm -f "$temp_file"
         continue
     fi
@@ -164,15 +123,15 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     rules=$(extract_rules "$temp_file")
 
     if [[ -z "$rules" ]]; then
-        echo "❌ 无法提取规则：$name"
+        echo "  ❌ 无法提取规则：$name"
         rm -f "$temp_file"
         continue
     fi
 
-    rule_count=$(echo "$rules" | grep -c '.' || echo 0)
-    echo "📊 原始规则：$rule_count 条"
+    rule_count=$(printf '%s\n' "$rules" | grep -c '.' 2>/dev/null || echo 0)
+    echo "  📊 原始规则：$rule_count 条"
 
-    echo "$rules" | \
+    printf '%s\n' "$rules" | \
       sed 's/，/,/g' | \
       sed 's/^[-•*] *//' | \
       sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
@@ -187,7 +146,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
       >> "$temp_group_file" || true
 
     rm -f "$temp_file"
-
 done < "$source_list"
 
 if [[ -n "$group_name" ]]; then
@@ -197,7 +155,6 @@ fi
 echo ""
 echo "🎉 所有规则集生成完成！"
 echo "📈 总计生成：$total_rules 条规则"
-
 if [[ "$has_changes" == "true" ]]; then
     echo "📢 检测到变化，需要提交"
 else
