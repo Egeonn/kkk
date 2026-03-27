@@ -43,7 +43,6 @@ save_group() {
         
         if [[ -f "$output_file" ]]; then
             if tail -n +5 "$output_file" | sort -u | cmp -s - "$temp_sorted"; then
-                # ✅ 无变化时也显示规则数
                 echo "⏭️ 分组 $name 共生成 $rule_count 条规则，无变化，跳过"
                 rm -f "$temp_sorted"
                 return 1
@@ -73,8 +72,10 @@ save_group() {
     fi
 }
 
+# ✅ 修复：添加 -E 标志（扩展正则表达式）
 process_rules() {
-    sed -e 's/，/,/g' \
+    sed -E \
+        -e 's/，/,/g' \
         -e 's/^[-•*] *//' \
         -e 's/^[[:space:]]*//;s/[[:space:]]*$//' \
         -e '/^$/d' \
@@ -128,7 +129,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     rule_count=$(printf '%s\n' "$rules" | grep -c '.' 2>/dev/null || echo 0)
     echo "  📊 原始规则：$rule_count 条"
 
-    printf '%s\n' "$rules" | process_rules >> "$temp_group_file" || true
+    # ✅ 修复：添加 || true 防止管道断裂
+    printf '%s\n' "$rules" | process_rules >> "$temp_group_file" 2>/dev/null || true
     rm -f "$temp_file"
 done < "$source_list"
 
