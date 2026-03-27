@@ -1,6 +1,6 @@
 # Merged RuleSet for AI
-# Generated at 2026-03-27 13:24:44 UTC
-# Total Rules: 161
+# Generated at 2026-03-27 15:59:20 UTC
+# Total Rules: 182
 
 DOMAIN,ai.google.dev
 DOMAIN,aida.googleapis.com
@@ -13,16 +13,27 @@ DOMAIN,antigravity.google
 DOMAIN,antigravity.googleapis.com
 DOMAIN,api.github.com
 DOMAIN,api.jetbrains.ai
+DOMAIN,api.statsig.com
 DOMAIN,api.together.xyz
+DOMAIN,apple-relay.apple.com
+DOMAIN,apple-relay.cloudflare.com
+DOMAIN,apple-relay.fastly-edge.com
+DOMAIN,apple-relay.mask.apple-dns.net
+DOMAIN,browser-intake-datadoghq.com
 DOMAIN,cloudaicompanion.googleapis.com
 DOMAIN,cloudcode-pa.googleapis.com
 DOMAIN,copilot-proxy.githubusercontent.com
+DOMAIN,cp4.cloudflare.com
 DOMAIN,daily-cloudcode-pa.googleapis.com
 DOMAIN,file.oaiusercontent.com
 DOMAIN,gateway.ai.cloudflare.com
+DOMAIN,gspe1-ssl.ls.apple.com
+DOMAIN,guzzoni.apple.com
+DOMAIN,imagine.meta.com
 DOMAIN,jules.google.com
 DOMAIN,notebooklm-pa.googleapis.com
 DOMAIN,notebooklm.googleapis.com
+DOMAIN,o33249.ingest.sentry.io
 DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
 DOMAIN,openaicom.imgix.net
 DOMAIN,openaicomproductionae4b.blob.core.windows.net
@@ -34,10 +45,16 @@ DOMAIN,robinfrontend-pa.googleapis.com
 DOMAIN,servd-anthropic-website.b-cdn.net
 DOMAIN,sydney.bing.com
 DOMAIN,webchannel-alkalimakersuite-pa.clients6.google.com
+DOMAIN,www.bing.com
 DOMAIN-KEYWORD,alkalimakersuite-pa.clients6.google.com
 DOMAIN-KEYWORD,anthropic
 DOMAIN-KEYWORD,claude
+DOMAIN-KEYWORD,labs.google
+DOMAIN-KEYWORD,notebooklm.google
 DOMAIN-KEYWORD,openai
+DOMAIN-KEYWORD,openaiapi
+DOMAIN-KEYWORD,openaicom
+DOMAIN-REGEX,^chatgpt-async-webps-prod-\S+-\d+\.webpubsub\.azure\.com$
 DOMAIN-SUFFIX,ai.azure.com
 DOMAIN-SUFFIX,ai.com
 DOMAIN-SUFFIX,ai.studio
@@ -47,8 +64,10 @@ DOMAIN-SUFFIX,aistudio.google.com
 DOMAIN-SUFFIX,anthropic.com
 DOMAIN-SUFFIX,antigravity-unleash.goog
 DOMAIN-SUFFIX,antigravity.google
+DOMAIN-SUFFIX,apps.mzstatic.com
 DOMAIN-SUFFIX,auth0.com
 DOMAIN-SUFFIX,bard.google.com
+DOMAIN-SUFFIX,byteoversea.com
 DOMAIN-SUFFIX,cerebras.ai
 DOMAIN-SUFFIX,chat.com
 DOMAIN-SUFFIX,chatgpt.com
@@ -97,6 +116,7 @@ DOMAIN-SUFFIX,events.statsigapi.net
 DOMAIN-SUFFIX,featuregates.org
 DOMAIN-SUFFIX,g.ai
 DOMAIN-SUFFIX,gateway.ai.cloudflare.com
+DOMAIN-SUFFIX,gateway.icloud.com
 DOMAIN-SUFFIX,geller-pa.googleapis.com
 DOMAIN-SUFFIX,gemini.google
 DOMAIN-SUFFIX,gemini.google.com
@@ -123,6 +143,7 @@ DOMAIN-SUFFIX,jules.google.com
 DOMAIN-SUFFIX,kiro.dev
 DOMAIN-SUFFIX,labs.google
 DOMAIN-SUFFIX,labs.google.com
+DOMAIN-SUFFIX,livekit.cloud
 DOMAIN-SUFFIX,liveperson.net
 DOMAIN-SUFFIX,lovart.ai
 DOMAIN-SUFFIX,lpsnmedia.net
@@ -152,6 +173,7 @@ DOMAIN-SUFFIX,poecdn.net
 DOMAIN-SUFFIX,pplx.ai
 DOMAIN-SUFFIX,proactivebackend-pa.googleapis.com
 DOMAIN-SUFFIX,robinfrontend-pa.googleapis.com
+DOMAIN-SUFFIX,smoot.apple.com
 DOMAIN-SUFFIX,sora.com
 DOMAIN-SUFFIX,spicywriter.com
 DOMAIN-SUFFIX,trae.ai
@@ -162,4 +184,3 @@ DOMAIN-SUFFIX,x.ai
 DOMAIN-SUFFIX,youmind.ai
 DOMAIN-SUFFIX,youmind.com
 DOMAIN-SUFFIX,youmind.site
-URL-REGEX,https://www\.google\.com/.*continue=https://gemini\.google\.com.+
