@@ -1,19 +1,14 @@
 #!/bin/bash
 
-# ============================================
-# RuleSet 生成脚本
-# 功能：从 ruleset_sources 拉取规则，分组合并，输出到 ruleset_txt
-# ============================================
+set -o pipefail
 
-# ✅ 变量定义
 source_list="${SOURCE_LIST:-./ruleset_sources}"
 output_dir="${OUTPUT_DIR:-./ruleset_txt}"
 group_name=""
 temp_group_file=$(mktemp)
-total_rules=0
 has_changes=false
+start_time=$(date +%s)
 
-# ✅ 检查源文件是否存在
 if [[ ! -f "$source_list" ]]; then
     echo "❌ 错误：$source_list 不存在"
     exit 1
@@ -21,52 +16,37 @@ fi
 
 mkdir -p "$output_dir"
 
-# ✅ 清理函数
 cleanup() {
     rm -f "$temp_group_file"
     rm -f *_remote.* 2>/dev/null || true
 }
 trap cleanup EXIT
 
-# ✅ 提取规则函数（支持 YAML 格式）
 extract_rules() {
     local file="$1"
-    local content=""
-
-    if grep -qE '^payload:|^rules:' "$file" 2>/dev/null; then
-        if command -v yq &> /dev/null; then
-            content=$(yq -r '.payload[]' "$file" 2>/dev/null || \
-                     yq -r '.rules[]' "$file" 2>/dev/null || \
-                     echo "")
-        fi
+    if grep -qE '^payload:|^rules:' "$file" 2>/dev/null && command -v yq &> /dev/null; then
+        yq -r '.payload[]' "$file" 2>/dev/null || yq -r '.rules[]' "$file" 2>/dev/null || cat "$file"
+    else
+        cat "$file"
     fi
-
-    if [[ -z "$content" ]]; then
-        content=$(cat "$file")
-    fi
-
-    printf '%s\n' "$content"
 }
 
-# ✅ 保存分组函数（含变更检测）
 save_group() {
     local name="$1"
     local temp_file="$2"
     
     if [[ -s "$temp_file" ]]; then
         local output_file="$output_dir/${name}.txt"
-        local rule_count=$(grep -c '.' "$temp_file" 2>/dev/null || echo 0)
+        local temp_sorted=$(mktemp)
+        sort -u "$temp_file" > "$temp_sorted"
+        local rule_count=$(wc -l < "$temp_sorted")
         
-        # 生成临时文件（去重后）
-        local temp_content=$(mktemp)
-        sort -u "$temp_file" > "$temp_content"
-        
-        # 比较规则内容是否变化（忽略头部4行注释）
         if [[ -f "$output_file" ]]; then
-            if diff -q <(tail -n +5 "$output_file" | sort -u) "$temp_content" > /dev/null 2>&1; then
-                echo "⏭️ 分组 $name 无变化，跳过"
-                rm -f "$temp_content"
-                return 1  # 无变化
+            if tail -n +5 "$output_file" | sort -u | cmp -s - "$temp_sorted"; then
+                # ✅ 无变化时也显示规则数
+                echo "⏭️ 分组 $name 共生成 $rule_count 条规则，无变化，跳过"
+                rm -f "$temp_sorted"
+                return 1
             else
                 echo "📝 分组 $name 有更新"
                 has_changes=true
@@ -76,52 +56,53 @@ save_group() {
             has_changes=true
         fi
         
-        # 生成最终文件（含时间戳）
         {
             echo "# Merged RuleSet for $name"
             echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
             echo "# Total Rules: $rule_count"
             echo ""
-            cat "$temp_content"
+            cat "$temp_sorted"
         } > "$output_file"
         
-        rm -f "$temp_content"
-        total_rules=$((total_rules + rule_count))
-        echo "✅ 分组 $name 已生成：$rule_count 条规则"
-        return 0  # 有变化
+        rm -f "$temp_sorted"
+        echo "✅ 分组 $name 共生成 $rule_count 条规则"
+        return 0
     else
-        echo "⚠️ 警告：分组 $name 没有规则，跳过生成"
+        echo "⚠️ 分组 $name 无规则，跳过"
         return 1
     fi
 }
 
-# ============================================
-# 主循环：读取源列表，下载并处理规则
-# ============================================
+process_rules() {
+    sed -e 's/，/,/g' \
+        -e 's/^[-•*] *//' \
+        -e 's/^[[:space:]]*//;s/[[:space:]]*$//' \
+        -e '/^$/d' \
+        -e '/^#/d' \
+        -e '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' \
+        -e 's/ *, */,/g' \
+        -e 's/^\+\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' \
+        -e 's/^\*\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' \
+        -e '/^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/'
+}
+
 while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" ]] && continue
     line=$(echo "$line" | xargs)
     [[ -z "$line" ]] && continue
 
-    # ✅ 判断是否是分组标记 [分组名]
     if [[ "$line" == \[*\] ]]; then
-        # 先保存上一个分组的结果
         if [[ -n "$group_name" ]]; then
             save_group "$group_name" "$temp_group_file" || true
         fi
-        # 开始新分组
         group_name="${line#[}"
         group_name="${group_name%]}"
         group_name=$(echo "$group_name" | xargs)
-        
-        # 清空临时文件
         > "$temp_group_file"
-        
         echo "📁 开始分组：$group_name"
         continue
     fi
 
-    # ✅ 处理规则 URL
     remote_url="$line"
     clean_url="${remote_url%%\?*}"
     base=$(basename "$clean_url")
@@ -130,55 +111,37 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
     echo "⬇️ 下载：$name"
 
-    if ! curl -s -L --fail --retry 3 --connect-timeout 30 --max-time 300 "$remote_url" -o "$temp_file"; then
-        echo "⚠️ 下载失败：$remote_url"
+    if ! curl -sL --fail --retry 2 --connect-timeout 15 --max-time 120 "$remote_url" -o "$temp_file"; then
+        echo "  ⚠️ 下载失败"
         continue
     fi
 
     file_size=$(wc -c < "$temp_file")
-    if [[ "$file_size" -lt 100 ]]; then
-        echo "  ⚠️ 文件过小 ($file_size 字节)，可能下载失败"
+    if [[ "$file_size" -lt 50 ]]; then
         rm -f "$temp_file"
         continue
     fi
 
     rules=$(extract_rules "$temp_file")
-
-    if [[ -z "$rules" ]]; then
-        echo "  ❌ 无法提取规则：$name"
-        rm -f "$temp_file"
-        continue
-    fi
+    [[ -z "$rules" ]] && { rm -f "$temp_file"; continue; }
 
     rule_count=$(printf '%s\n' "$rules" | grep -c '.' 2>/dev/null || echo 0)
     echo "  📊 原始规则：$rule_count 条"
 
-    # ✅ 规则清洗和格式化
-    printf '%s\n' "$rules" | \
-      sed 's/，/,/g' | \
-      sed 's/^[-•*] *//' | \
-      sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
-      sed '/^$/d' | \
-      sed '/^#/d' | \
-      sed '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' | \
-      sed 's/ *, */,/g' | \
-      sed -E 's/^\+\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' | \
-      sed -E 's/^\*\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' | \
-      sed -E '/^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/' | \
-      sed -E '/^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|GEOIP|PROCESS-NAME),/!s/ *, */,/g' \
-      >> "$temp_group_file" || true
-
+    printf '%s\n' "$rules" | process_rules >> "$temp_group_file" || true
     rm -f "$temp_file"
 done < "$source_list"
 
-# ✅ 处理最后一组
 if [[ -n "$group_name" ]]; then
     save_group "$group_name" "$temp_group_file" || true
 fi
 
+end_time=$(date +%s)
+duration=$((end_time - start_time))
+
 echo ""
 echo "🎉 所有规则集生成完成！"
-echo "📈 总计生成：$total_rules 条规则"
+echo "⏱️  耗时：${duration}秒"
 if [[ "$has_changes" == "true" ]]; then
     echo "📢 检测到变化，需要提交"
 else
