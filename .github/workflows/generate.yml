@@ -2,13 +2,13 @@ name: Generate RuleSets
 
 on:
   schedule:
-    - cron: '0 */12 * * *'
-  workflow_dispatch:
+    - cron: '0 */12 * * *'  # 每12小时运行一次
+  workflow_dispatch:         # 支持手动触发
   push:
-    branches: [ main ]
+    branches: [ main ]       # main 分支推送时触发
 
 permissions:
-  contents: write
+  contents: write            # 允许推送代码
 
 jobs:
   generate:
@@ -20,6 +20,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check Source File
+        run: |
+          if [[ ! -f ruleset_sources ]]; then
+            echo "❌ 错误：ruleset_sources 文件不存在"
+            exit 1
+          fi
+          echo "✅ 源文件存在，继续执行"
+
       - name: Fix Line Endings
         run: |
           find . -name "*.sh" -type f -exec sed -i 's/\r$//' {} \;
@@ -27,14 +35,16 @@ jobs:
 
       - name: Install yq (optional)
         run: |
-          # ✅ 修复：删除 URL 多余空格
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq 2>/dev/null || true
           sudo chmod +x /usr/bin/yq 2>/dev/null || true
 
       - name: Generate RuleSets
         run: |
           chmod +x generate_rules.sh
-          ./generate_rules.sh
+          ./generate_rules.sh || {
+            echo "❌ 规则生成失败"
+            exit 1
+          }
 
       - name: Commit and Push
         run: |
