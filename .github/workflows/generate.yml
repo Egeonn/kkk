@@ -15,7 +15,7 @@ jobs:
       # ✅ 安装 mihomo（关键！）
       - name: 📦 Install Mihomo
         run: |
-          wget -O mihomo.gz https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64-compatible.gz
+          wget -O mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.21/mihomo-linux-amd64-v1-go120-v1.19.21.gz
           gunzip mihomo.gz
           chmod +x mihomo
           sudo mv mihomo /usr/local/bin/mihomo
