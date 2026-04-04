@@ -1,6 +1,6 @@
 # Merged RuleSet for AI
-# Generated at 2026-04-04 12:53:16 UTC
-# Total Rules: 182
+# Generated at 2026-04-04 13:03:09 UTC
+# Total Rules: 181
 
 DOMAIN,ai.google.dev
 DOMAIN,aida.googleapis.com
@@ -54,7 +54,6 @@ DOMAIN-KEYWORD,notebooklm.google
 DOMAIN-KEYWORD,openai
 DOMAIN-KEYWORD,openaiapi
 DOMAIN-KEYWORD,openaicom
-DOMAIN-REGEX,^chatgpt-async-webps-prod-\S+-\d+\.webpubsub\.azure\.com$
 DOMAIN-SUFFIX,ai.azure.com
 DOMAIN-SUFFIX,ai.com
 DOMAIN-SUFFIX,ai.studio
