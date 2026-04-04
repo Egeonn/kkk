@@ -1,59 +1,72 @@
-name: Generate RuleSets
+name: Update Ruleset
 
 on:
   schedule:
-    - cron: '0 */12 * * *'  # 每12小时运行一次
-  workflow_dispatch:         # 支持手动触发
-  push:
-    branches: [ main ]       # main 分支推送时触发
+    - cron: "0 */12 * * *"   # 每6小时运行
+  workflow_dispatch:
 
-permissions:
-  contents: write            # 允许推送代码
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  generate:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+
     steps:
+      # ==============================
+      # 📥 拉取仓库
+      # ==============================
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Check Source File
+      # ==============================
+      # 📦 安装 Mihomo（稳定版）
+      # ==============================
+      - name: Install Mihomo
         run: |
-          if [[ ! -f ruleset_sources ]]; then
-            echo "❌ 错误：ruleset_sources 文件不存在"
-            exit 1
-          fi
-          echo "✅ 源文件存在，继续执行"
+          set -e
 
-      - name: Fix Line Endings
-        run: |
-          find . -name "*.sh" -type f -exec sed -i 's/\r$//' {} \;
-          find . -name "*.sh" -type f -exec chmod +x {} \;
+          VERSION=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | grep tag_name | cut -d '"' -f4)
 
-      - name: Install yq (optional)
-        run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq 2>/dev/null || true
-          sudo chmod +x /usr/bin/yq 2>/dev/null || true
+          echo "📦 Mihomo version: $VERSION"
 
-      - name: Generate RuleSets
-        run: |
-          chmod +x generate_rules.sh
-          ./generate_rules.sh || {
-            echo "❌ 规则生成失败"
-            exit 1
-          }
+          wget -O mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/${VERSION}/mihomo-linux-amd64-v1-go120-${VERSION}.gz"
 
-      - name: Commit and Push
+          gunzip mihomo.gz
+          chmod +x mihomo
+          sudo mv mihomo /usr/local/bin/mihomo
+
+          mihomo -v
+
+      # ==============================
+      # 📦 安装 yq（解析 YAML）
+      # ==============================
+      - name: Install yq
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add ruleset_txt/
-          if ! git diff --staged --quiet; then
-            git commit -m "🔄 Auto-update rulesets $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-            git push
+          sudo apt-get update
+          sudo apt-get install -y yq
+
+      # ==============================
+      # 🚀 运行脚本
+      # ==============================
+      - name: Run Ruleset Script
+        run: |
+          chmod +x ./your_script.sh
+          ./your_script.sh
+
+      # ==============================
+      # 📤 提交变更
+      # ==============================
+      - name: Commit & Push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add ruleset_txt
+
+          if git diff --cached --quiet; then
+            echo "✅ 无变化"
           else
-            echo "✅ 没有变化，无需提交"
+            git commit -m "Update ruleset $(date -u '+%Y-%m-%d %H:%M:%S')"
+            git push
           fi
