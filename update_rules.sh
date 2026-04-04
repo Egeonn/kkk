@@ -39,7 +39,7 @@ extract_rules() {
     # 检测 YAML/Clash 格式
     if grep -qE '^\s*(payload|rules):' "$file" 2>/dev/null; then
         if command -v yq &> /dev/null; then
-            # 尝试多种 YAML 结构提取
+            # 尝试多种 YAML 结构提取，兼容嵌套
             content=$(yq -r '
                 (.payload // .rules) | 
                 if type == "array" then .[] 
@@ -48,7 +48,7 @@ extract_rules() {
                 end
             ' "$file" 2>/dev/null || echo "")
             
-            # 如果提取结果仍含 "payload:" 前缀，清理它
+            # 清理可能残留的前缀
             if [[ -n "$content" ]] && echo "$content" | grep -qE '^\s*payload:'; then
                 content=$(echo "$content" | sed 's/^[[:space:]]*payload:[[:space:]]*//')
             fi
@@ -170,8 +170,8 @@ save_group() {
     return 0
 }
 
-# ================= 主执行逻辑 (新版格式解析 + 安全访问) =================
-echo "🚀 开始处理规则集 (格式: [Group] + URLs)..."
+# ================= 主执行逻辑 (仅远程链接 + 修复 local 错误) =================
+echo "🚀 开始处理规则集 (格式: [Group] + 远程URL)..."
 
 current_group=""
 declare -a current_sources=()
@@ -192,22 +192,20 @@ process_pending_group() {
         src=$(echo "$src" | xargs)  # 去除首尾空格
         [[ -z "$src" || "$src" =~ ^# ]] && continue
 
+        # 🔥 仅支持远程链接，自动跳过本地路径
+        if [[ ! "$src" =~ ^https?:// ]]; then
+            echo "   ⚠️ 仅支持远程链接，跳过本地路径: $src"
+            continue
+        fi
+
         echo "   ⬇️ 获取: $src"
         local src_file
         src_file=$(register_temp)
 
-        # 下载或复制
-        if [[ "$src" =~ ^https?:// ]]; then
-            if ! curl -fsSL --retry 2 --connect-timeout 5 "$src" -o "$src_file" 2>/dev/null; then
-                echo "   ⚠️ 下载失败，跳过"
-                continue
-            fi
-        else
-            if [[ ! -f "$src" ]]; then
-                echo "   ⚠️ 本地文件不存在，跳过: $src"
-                continue
-            fi
-            cp "$src" "$src_file"
+        # 下载远程文件
+        if ! curl -fsSL --retry 2 --connect-timeout 5 "$src" -o "$src_file" 2>/dev/null; then
+            echo "   ⚠️ 下载失败，跳过: $src"
+            continue
         fi
 
         # 提取并追加
@@ -229,10 +227,10 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     # 跳过空行和注释
     [[ -z "$line" || "$line" =~ ^# ]] && continue
 
-    # 匹配分组头 [GroupName] - 安全访问 BASH_REMATCH
+    # 匹配分组头 [GroupName]
     if [[ "$line" =~ ^\[([^\]]+)\]$ ]]; then
-        # ✅ 安全获取分组名：使用 :- 提供默认值避免 unbound variable
-        local group_name="${BASH_REMATCH[1]:-}"
+        # ✅ 修复：使用普通变量赋值，不使用 local（主循环不在函数内）
+        group_name="${BASH_REMATCH[1]:-}"
         if [[ -z "$group_name" ]]; then
             echo "⚠️ 警告: 无效分组头 '$line'，已忽略"
             continue
