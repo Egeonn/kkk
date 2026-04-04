@@ -97,7 +97,7 @@ save_group() {
         changed=true
     fi
 
-    # ===== 写入完整 TXT（保持完整 Clash 格式） =====
+    # ===== 写入完整 TXT（保持完整 Clash 格式，含 IP-ASN 和 ,no-resolve） =====
     if [[ "$changed" == true ]]; then
         {
             echo "# Merged RuleSet for $name"
@@ -133,7 +133,10 @@ save_group() {
             sed 's/^/./' || true  # 🔥 关键：添加前导点
     } | grep -v '^$' | sort -u > "$domain_file"
 
-    # ✅ IP MRS 输入：剥离前缀与附加参数，只留纯 CIDR
+    # ✅ IP MRS 输入：
+    #    - 仅支持 IP-CIDR / IP-CIDR6
+    #    - 排除 IP-ASN（需 behavior: classical）
+    #    - 剥离前缀 + 附加参数，只留纯 CIDR
     grep -E '^(IP-CIDR|IP-CIDR6),' "$full_sorted" 2>/dev/null | \
         sed -E 's/^(IP-CIDR|IP-CIDR6),//' | \
         cut -d',' -f1 | \
@@ -177,7 +180,7 @@ save_group() {
             echo "⏭️ IP MRS 无变化，跳过"
         fi
     else
-        echo "ℹ️ 无 IP 规则，跳过 IP MRS"
+        echo "ℹ️ 无有效 IP 规则（仅支持 IP-CIDR/IP-CIDR6），跳过 IP MRS"
     fi
 
     total_rules=$((total_rules + rule_count))
