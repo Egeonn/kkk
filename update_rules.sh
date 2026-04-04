@@ -31,25 +31,40 @@ register_temp() {
     echo "$tmp"
 }
 
-# ================= 规则提取 =================
+# ================= 规则提取（增强版） =================
 extract_rules() {
     local file="$1"
     local content=""
 
-    # 检测是否为 YAML/Clash 格式
+    # 检测 YAML/Clash 格式
     if grep -qE '^\s*(payload|rules):' "$file" 2>/dev/null; then
         if command -v yq &> /dev/null; then
-            content=$(yq -r '.payload[]? // .rules[]? // empty' "$file" 2>/dev/null || echo "")
+            # 尝试多种 YAML 结构提取
+            content=$(yq -r '
+                (.payload // .rules) | 
+                if type == "array" then .[] 
+                elif type == "object" then to_entries[].value 
+                else . 
+                end
+            ' "$file" 2>/dev/null || echo "")
+            
+            # 如果提取结果仍含 "payload:" 前缀，清理它
+            if [[ -n "$content" ]] && echo "$content" | grep -qE '^\s*payload:'; then
+                content=$(echo "$content" | sed 's/^[[:space:]]*payload:[[:space:]]*//')
+            fi
         fi
     fi
 
-    # 非 YAML 或提取失败时，直接读取原文
+    # 回退：直接读取文件
     if [[ -z "$content" ]]; then
         content=$(cat "$file")
     fi
 
-    # 过滤注释与空行，输出纯净规则
-    echo "$content" | grep -vE '^\s*(#|$)' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || true
+    # 清洗：去除注释、空行、首尾空格、YAML 列表符号 "- "
+    echo "$content" | \
+        grep -vE '^\s*(#|$|payload:|rules:)' | \
+        sed 's/^[[:space:]]*-[[:space:]]*//; s/^[[:space:]]*//; s/[[:space:]]*$//' | \
+        grep -vE '^$' || true
 }
 
 # ================= 分组保存与 MRS 生成 =================
@@ -108,13 +123,14 @@ save_group() {
     domain_file=$(register_temp)
     ip_file=$(register_temp)
 
-    # 提取域名规则 (DOMAIN, DOMAIN-SUFFIX)
-    grep -E '^(DOMAIN|DOMAIN-SUFFIX),' "$full_sorted" > "$domain_file" 2>/dev/null || true
-    # 提取 IP 规则 (IP-CIDR, IP-CIDR6)
-    grep -E '^(IP-CIDR|IP-CIDR6),' "$full_sorted" > "$ip_file" 2>/dev/null || true
+    # 提取域名规则 (支持 DOMAIN, DOMAIN-SUFFIX, DOMAIN-KEYWORD)
+    grep -E '^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD),' "$full_sorted" > "$domain_file" 2>/dev/null || true
+    # 提取 IP 规则 (IP-CIDR, IP-CIDR6, IP-ASN)
+    grep -E '^(IP-CIDR|IP-CIDR6|IP-ASN),' "$full_sorted" > "$ip_file" 2>/dev/null || true
 
-    local domain_count=$(wc -l < "$domain_file" | tr -d ' ')
-    local ip_count=$(wc -l < "$ip_file" | tr -d ' ')
+    local domain_count ip_count
+    domain_count=$(wc -l < "$domain_file" | tr -d ' ')
+    ip_count=$(wc -l < "$ip_file" | tr -d ' ')
 
     # ===== 生成 Domain MRS =====
     if [[ "$domain_count" -gt 0 ]]; then
@@ -154,7 +170,7 @@ save_group() {
     return 0
 }
 
-# ================= 主执行逻辑 (新版格式解析) =================
+# ================= 主执行逻辑 (新版格式解析 + 安全访问) =================
 echo "🚀 开始处理规则集 (格式: [Group] + URLs)..."
 
 current_group=""
@@ -213,14 +229,21 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     # 跳过空行和注释
     [[ -z "$line" || "$line" =~ ^# ]] && continue
 
-    # 匹配分组头 [GroupName]
+    # 匹配分组头 [GroupName] - 安全访问 BASH_REMATCH
     if [[ "$line" =~ ^\[([^\]]+)\]$ ]]; then
+        # ✅ 安全获取分组名：使用 :- 提供默认值避免 unbound variable
+        local group_name="${BASH_REMATCH[1]:-}"
+        if [[ -z "$group_name" ]]; then
+            echo "⚠️ 警告: 无效分组头 '$line'，已忽略"
+            continue
+        fi
+        
         # 先处理上一个分组（如果有）
         if [[ -n "$current_group" && ${#current_sources[@]} -gt 0 ]]; then
             process_pending_group "$current_group" "${current_sources[@]}"
         fi
         # 重置为新分组
-        current_group="${BASH_REMATCH[1]}"
+        current_group="$group_name"
         current_sources=()
         echo "🔍 解析到新分组: [$current_group]"
         continue
