@@ -10,6 +10,6 @@ https://raw.githubusercontent.com/Repcz/Tool/refs/heads/X/mihomo/Rules/AI.list
 [anti_list]
 https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-surge.txt
 https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules.list
-[Proxy]
+[Global]
 https://raw.githubusercontent.com/DustinWin/domain-list-custom/refs/heads/domains/proxy.list
 https://raw.githubusercontent.com/QuixoticHeart/rule-set/refs/heads/ruleset/meta/proxy.list
