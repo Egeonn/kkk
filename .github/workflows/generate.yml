@@ -1,72 +1,55 @@
-name: Update Ruleset
+name: 🔄 自动更新规则集 (Ruleset & MRS)
 
 on:
   schedule:
-    - cron: "0 */12 * * *"   # 每6小时运行
-  workflow_dispatch:
+    - cron: '0 18 * * *'  # 每天 UTC 18:00 (北京时间 02:00) 执行
+  workflow_dispatch:      # 允许在 Actions 面板手动触发
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+permissions:
+  contents: write         # 授予推送代码权限
 
 jobs:
-  build:
+  update-rules:
     runs-on: ubuntu-latest
-
     steps:
-      # ==============================
-      # 📥 拉取仓库
-      # ==============================
-      - name: Checkout
+      - name: 📥 检出代码
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # 浅克隆加速
 
-      # ==============================
-      # 📦 安装 Mihomo（稳定版）
-      # ==============================
-      - name: Install Mihomo
+      - name: 🛠️ 安装运行环境 (yq & mihomo)
         run: |
           set -e
+          echo "📦 安装 yq (YAML 解析器)..."
+          curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
 
-          VERSION=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | grep tag_name | cut -d '"' -f4)
+          echo "📦 安装 mihomo (MRS 转换器)..."
+          # 获取最新稳定版标签
+          MIHOMO_TAG=$(curl -s "https://api.github.com/repos/MetaCubeX/mihomo/releases/latest" | jq -r '.tag_name')
+          echo "   当前版本: $MIHOMO_TAG"
+          
+          # 下载并解压二进制文件
+          curl -sL "https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_TAG}/mihomo-linux-amd64-${MIHOMO_TAG}.gz" | gunzip -c > /usr/local/bin/mihomo
+          chmod +x /usr/local/bin/mihomo
+          
+          mihomo -v  # 验证安装
 
-          echo "📦 Mihomo version: $VERSION"
-
-          wget -O mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/${VERSION}/mihomo-linux-amd64-v1-go120-${VERSION}.gz"
-
-          gunzip mihomo.gz
-          chmod +x mihomo
-          sudo mv mihomo /usr/local/bin/mihomo
-
-          mihomo -v
-
-      # ==============================
-      # 📦 安装 yq（解析 YAML）
-      # ==============================
-      - name: Install yq
+      - name: 📜 执行规则合并与转换脚本
         run: |
-          sudo apt-get update
-          sudo apt-get install -y yq
+          chmod +x ./update_rules.sh
+          ./update_rules.sh
 
-      # ==============================
-      # 🚀 运行脚本
-      # ==============================
-      - name: Run Ruleset Script
+      - name: 💾 自动提交变更
         run: |
-          chmod +x ./generate_rules.sh
-          ./generate_rules.sh
-
-      # ==============================
-      # 📤 提交变更
-      # ==============================
-      - name: Commit & Push
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-
-          git add ruleset_txt
-
-          if git diff --cached --quiet; then
-            echo "✅ 无变化"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add ruleset_txt/
+          if git diff --staged --quiet; then
+            echo "✅ 规则集无变化，跳过提交"
           else
-            git commit -m "Update ruleset $(date -u '+%Y-%m-%d %H:%M:%S')"
+            git commit -m "chore(rules): 自动更新规则集 [skip ci]"
             git push
+            echo "🚀 已成功推送更新到仓库"
           fi
