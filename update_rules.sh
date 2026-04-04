@@ -31,7 +31,7 @@ register_temp() {
     echo "$tmp"
 }
 
-# ================= 规则提取（终极清洗版） =================
+# ================= 规则提取（终极修复版：cut 截取法） =================
 extract_rules() {
     local file="$1"
     local content=""
@@ -52,22 +52,22 @@ extract_rules() {
     # 2️⃣ 回退：直接读取
     [[ -z "$content" ]] && content=$(cat "$file")
 
-    # 3️⃣ 🔥 终极清洗流水线
+    # 3️⃣ 🔥 清洗流水线（关键修复：用 cut 截取前两段）
     echo "$content" | \
-        # ① 去除整行注释（# 及之后内容）
+        # ① 去除整行注释
         sed 's/#.*//' | \
         # ② 去除 YAML 列表符号和首尾空格
         sed 's/^[[:space:]]*-[[:space:]]*//; s/^[[:space:]]*//; s/[[:space:]]*$//' | \
         # ③ 过滤空行和配置关键字
         grep -vE '^$|^(payload|rules):' | \
-        # ④ 🔑 核心修复：标准化规则格式
-        #    - 去除规则类型与逗号之间的所有空格: "DOMAIN  ," → "DOMAIN,"
-        #    - 去除逗号后的前导空格: ",  value" → ",value"
-        sed -E 's/^(DOMAIN-SUFFIX|DOMAIN|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|IP-ASN)[[:space:]]*,[[:space:]]*/\1,/' | \
-        # ⑤ 再次清理首尾空格
+        # ④ 标准化：去除规则类型与逗号之间的空格 "DOMAIN  ," → "DOMAIN,"
+        sed -E 's/^([A-Z-]+)[[:space:]]*,[[:space:]]*/\1,/' | \
+        # ⑤ 🔑 核心修复：用 cut 只保留前两个字段（类型,值），丢弃所有额外参数
+        cut -d',' -f1,2 | \
+        # ⑥ 再次清理首尾空格（防止 cut 后残留）
         sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | \
-        # ⑥ 只保留标准格式行（确保后续 grep 能匹配）
-        grep -E '^(DOMAIN-SUFFIX|DOMAIN|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|IP-ASN),' || true
+        # ⑦ 只保留标准格式行（确保值部分非空）
+        grep -E '^(DOMAIN-SUFFIX|DOMAIN|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|IP-ASN),[^[:space:]]' || true
 }
 
 # ================= 分组保存与 MRS 生成 =================
@@ -126,9 +126,9 @@ save_group() {
     domain_file=$(register_temp)
     ip_file=$(register_temp)
 
-    # 提取域名规则 (支持 DOMAIN, DOMAIN-SUFFIX, DOMAIN-KEYWORD)
+    # 提取域名规则
     grep -E '^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD),' "$full_sorted" > "$domain_file" 2>/dev/null || true
-    # 提取 IP 规则 (IP-CIDR, IP-CIDR6, IP-ASN)
+    # 提取 IP 规则
     grep -E '^(IP-CIDR|IP-CIDR6|IP-ASN),' "$full_sorted" > "$ip_file" 2>/dev/null || true
 
     local domain_count ip_count
@@ -140,12 +140,10 @@ save_group() {
         local domain_mrs="$output_dir/${name}_domain.mrs"
         if [[ "$changed" == true || ! -f "$domain_mrs" ]]; then
             echo "🌐 生成 Domain MRS: $name ($domain_count 条)"
-            # ✅ 修复：添加 behavior=domain 参数，并捕获错误输出
             if mihomo convert-ruleset domain text "$domain_file" "$domain_mrs" 2>&1; then
                 echo "📦 Domain MRS 已生成: $domain_mrs"
             else
-                echo "❌ Domain MRS 生成失败，检查规则格式"
-                echo "🔍 预览前 3 条规则:" >&2
+                echo "❌ Domain MRS 生成失败"
                 head -3 "$domain_file" >&2
             fi
         else
@@ -160,12 +158,10 @@ save_group() {
         local ip_mrs="$output_dir/${name}_ip.mrs"
         if [[ "$changed" == true || ! -f "$ip_mrs" ]]; then
             echo "🌐 生成 IP MRS: $name ($ip_count 条)"
-            # ✅ 修复：添加 behavior=ipcidr 参数
             if mihomo convert-ruleset ipcidr text "$ip_file" "$ip_mrs" 2>&1; then
                 echo "📦 IP MRS 已生成: $ip_mrs"
             else
-                echo "❌ IP MRS 生成失败，检查规则格式"
-                echo "🔍 预览前 3 条规则:" >&2
+                echo "❌ IP MRS 生成失败"
                 head -3 "$ip_file" >&2
             fi
         else
@@ -179,7 +175,7 @@ save_group() {
     return 0
 }
 
-# ================= 主执行逻辑 (仅远程链接 + 修复 local 错误) =================
+# ================= 主执行逻辑 =================
 echo "🚀 开始处理规则集 (格式: [Group] + 远程URL)..."
 
 current_group=""
@@ -198,10 +194,9 @@ process_pending_group() {
     > "$merged_temp"
 
     for src in "${sources[@]}"; do
-        src=$(echo "$src" | xargs)  # 去除首尾空格
+        src=$(echo "$src" | xargs)
         [[ -z "$src" || "$src" =~ ^# ]] && continue
 
-        # 🔥 仅支持远程链接，自动跳过本地路径
         if [[ ! "$src" =~ ^https?:// ]]; then
             echo "   ⚠️ 仅支持远程链接，跳过: $src"
             continue
@@ -211,13 +206,11 @@ process_pending_group() {
         local src_file
         src_file=$(register_temp)
 
-        # 下载远程文件
         if ! curl -fsSL --retry 2 --connect-timeout 5 "$src" -o "$src_file" 2>/dev/null; then
             echo "   ⚠️ 下载失败，跳过: $src"
             continue
         fi
 
-        # 提取并追加
         extract_rules "$src_file" >> "$merged_temp" 2>/dev/null || true
     done
 
@@ -230,33 +223,25 @@ process_pending_group() {
 
 # 逐行解析配置文件
 while IFS= read -r line || [[ -n "$line" ]]; do
-    # 去除首尾空白
     line=$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    
-    # 跳过空行和注释
     [[ -z "$line" || "$line" =~ ^# ]] && continue
 
-    # 匹配分组头 [GroupName]
     if [[ "$line" =~ ^\[([^\]]+)\]$ ]]; then
-        # ✅ 修复：使用普通变量赋值，不使用 local（主循环不在函数内）
         group_name="${BASH_REMATCH[1]:-}"
         if [[ -z "$group_name" ]]; then
             echo "⚠️ 警告: 无效分组头 '$line'，已忽略"
             continue
         fi
         
-        # 先处理上一个分组（如果有）
         if [[ -n "$current_group" && ${#current_sources[@]} -gt 0 ]]; then
             process_pending_group "$current_group" "${current_sources[@]}"
         fi
-        # 重置为新分组
         current_group="$group_name"
         current_sources=()
         echo "🔍 解析到新分组: [$current_group]"
         continue
     fi
 
-    # 非分组头、非注释、非空行 → 视为来源链接
     if [[ -n "$current_group" ]]; then
         current_sources+=("$line")
     else
