@@ -55,7 +55,7 @@ extract_rules() {
 # ================= 分组保存与 MRS 生成 =================
 save_group() {
     local name="$1"
-    local temp_file="$2" # 合并后的原始规则
+    local temp_file="$2"
 
     if [[ ! -s "$temp_file" ]]; then
         echo "⚠️ 警告：分组 $name 没有规则"
@@ -108,9 +108,9 @@ save_group() {
     domain_file=$(register_temp)
     ip_file=$(register_temp)
 
-    # 提取域名规则
+    # 提取域名规则 (DOMAIN, DOMAIN-SUFFIX)
     grep -E '^(DOMAIN|DOMAIN-SUFFIX),' "$full_sorted" > "$domain_file" 2>/dev/null || true
-    # 提取 IP 规则 (IPv4/IPv6 CIDR)
+    # 提取 IP 规则 (IP-CIDR, IP-CIDR6)
     grep -E '^(IP-CIDR|IP-CIDR6),' "$full_sorted" > "$ip_file" 2>/dev/null || true
 
     local domain_count=$(wc -l < "$domain_file" | tr -d ' ')
@@ -147,36 +147,37 @@ save_group() {
             echo "⏭️ IP MRS 无变化，跳过"
         fi
     else
-        echo "ℹ️ 无 IP-CIDR 规则，跳过 IP MRS"
+        echo "ℹ️ 无 IP 规则，跳过 IP MRS"
     fi
 
     total_rules=$((total_rules + rule_count))
     return 0
 }
 
-# ================= 主执行逻辑 =================
-echo "🚀 开始处理规则集..."
+# ================= 主执行逻辑 (新版格式解析) =================
+echo "🚀 开始处理规则集 (格式: [Group] + URLs)..."
 
-while IFS= read -r line || [[ -n "$line" ]]; do
-    # 跳过空行、纯空格行和注释
-    [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+current_group=""
+declare -a current_sources=()
 
-    # 解析格式：分组名 | 源1,源2,源3
-    IFS='|' read -r group_name source_str <<< "$line"
-    group_name=$(echo "$group_name" | xargs)
-    [[ -z "$group_name" ]] && continue
-
-    echo "📥 开始合并分组: $group_name"
+process_pending_group() {
+    local name="$1"
+    shift
+    local sources=("$@")
+    
+    [[ -z "$name" || ${#sources[@]} -eq 0 ]] && return 0
+    
+    echo "📥 开始合并分组: $name (${#sources[@]} 个来源)"
+    local merged_temp
     merged_temp=$(register_temp)
     > "$merged_temp"
 
-    # 按逗号拆分多个来源
-    IFS=',' read -ra sources <<< "$source_str"
     for src in "${sources[@]}"; do
-        src=$(echo "$src" | xargs) # 去除首尾空格
-        [[ -z "$src" ]] && continue
+        src=$(echo "$src" | xargs)  # 去除首尾空格
+        [[ -z "$src" || "$src" =~ ^# ]] && continue
 
         echo "   ⬇️ 获取: $src"
+        local src_file
         src_file=$(register_temp)
 
         # 下载或复制
@@ -197,13 +198,46 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         extract_rules "$src_file" >> "$merged_temp" 2>/dev/null || true
     done
 
-    # 保存并生成 MRS
     if [[ -s "$merged_temp" ]]; then
-        save_group "$group_name" "$merged_temp"
+        save_group "$name" "$merged_temp"
     else
-        echo "⚠️ 分组 $group_name 未获取到任何有效规则"
+        echo "⚠️ 分组 $name 未获取到任何有效规则"
+    fi
+}
+
+# 逐行解析配置文件
+while IFS= read -r line || [[ -n "$line" ]]; do
+    # 去除首尾空白
+    line=$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    
+    # 跳过空行和注释
+    [[ -z "$line" || "$line" =~ ^# ]] && continue
+
+    # 匹配分组头 [GroupName]
+    if [[ "$line" =~ ^\[([^\]]+)\]$ ]]; then
+        # 先处理上一个分组（如果有）
+        if [[ -n "$current_group" && ${#current_sources[@]} -gt 0 ]]; then
+            process_pending_group "$current_group" "${current_sources[@]}"
+        fi
+        # 重置为新分组
+        current_group="${BASH_REMATCH[1]}"
+        current_sources=()
+        echo "🔍 解析到新分组: [$current_group]"
+        continue
+    fi
+
+    # 非分组头、非注释、非空行 → 视为来源链接
+    if [[ -n "$current_group" ]]; then
+        current_sources+=("$line")
+    else
+        echo "⚠️ 警告: 链接 '$line' 未在任何分组下，已忽略"
     fi
 done < "$source_list"
+
+# 处理最后一个分组
+if [[ -n "$current_group" && ${#current_sources[@]} -gt 0 ]]; then
+    process_pending_group "$current_group" "${current_sources[@]}"
+fi
 
 echo "========================================"
 echo "🎉 处理完成！"
