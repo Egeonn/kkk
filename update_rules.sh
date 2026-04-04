@@ -31,12 +31,12 @@ register_temp() {
     echo "$tmp"
 }
 
-# ================= 规则提取（终极修复版：cut 截取法） =================
+# ================= 规则提取（标准化格式） =================
 extract_rules() {
     local file="$1"
     local content=""
 
-    # 1️⃣ 尝试 YAML 提取（兼容多种结构）
+    # 1️⃣ 尝试 YAML 提取
     if grep -qE '^\s*(payload|rules):' "$file" 2>/dev/null; then
         if command -v yq &> /dev/null; then
             content=$(yq -r '
@@ -52,21 +52,14 @@ extract_rules() {
     # 2️⃣ 回退：直接读取
     [[ -z "$content" ]] && content=$(cat "$file")
 
-    # 3️⃣ 🔥 清洗流水线（关键修复：用 cut 截取前两段）
+    # 3️⃣ 清洗流水线
     echo "$content" | \
-        # ① 去除整行注释
         sed 's/#.*//' | \
-        # ② 去除 YAML 列表符号和首尾空格
         sed 's/^[[:space:]]*-[[:space:]]*//; s/^[[:space:]]*//; s/[[:space:]]*$//' | \
-        # ③ 过滤空行和配置关键字
         grep -vE '^$|^(payload|rules):' | \
-        # ④ 标准化：去除规则类型与逗号之间的空格 "DOMAIN  ," → "DOMAIN,"
         sed -E 's/^([A-Z-]+)[[:space:]]*,[[:space:]]*/\1,/' | \
-        # ⑤ 🔑 核心修复：用 cut 只保留前两个字段（类型,值），丢弃所有额外参数
         cut -d',' -f1,2 | \
-        # ⑥ 再次清理首尾空格（防止 cut 后残留）
         sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | \
-        # ⑦ 只保留标准格式行（确保值部分非空）
         grep -E '^(DOMAIN-SUFFIX|DOMAIN|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|IP-ASN),[^[:space:]]' || true
 }
 
@@ -120,22 +113,27 @@ save_group() {
     fi
 
     # ==============================
-    # 🔪 拆分规则：域名 vs IP
+    # 🔪 拆分规则：域名 vs IP（格式分离处理）
     # ==============================
     local domain_file ip_file
     domain_file=$(register_temp)
     ip_file=$(register_temp)
 
-    # 提取域名规则
+    # ✅ 域名规则：保持带前缀格式 (DOMAIN,xxx)
     grep -E '^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD),' "$full_sorted" > "$domain_file" 2>/dev/null || true
-    # 提取 IP 规则
-    grep -E '^(IP-CIDR|IP-CIDR6|IP-ASN),' "$full_sorted" > "$ip_file" 2>/dev/null || true
+
+    # ✅ IP 规则：去除前缀，只保留纯 CIDR (192.168.1.0/24)
+    #    流程: 过滤 → 去除 IP-CIDR,/IP-CIDR6, 前缀 → 取第一个字段(纯CIDR) → 清理空格
+    grep -E '^(IP-CIDR|IP-CIDR6),' "$full_sorted" 2>/dev/null | \
+        sed -E 's/^(IP-CIDR|IP-CIDR6),//' | \
+        cut -d',' -f1 | \
+        sed 's/^[[:space:]]*//; s/[[:space:]]*$//' > "$ip_file" || true
 
     local domain_count ip_count
     domain_count=$(wc -l < "$domain_file" | tr -d ' ')
     ip_count=$(wc -l < "$ip_file" | tr -d ' ')
 
-    # ===== 生成 Domain MRS =====
+    # ===== 生成 Domain MRS (behavior=domain, 输入带前缀) =====
     if [[ "$domain_count" -gt 0 ]]; then
         local domain_mrs="$output_dir/${name}_domain.mrs"
         if [[ "$changed" == true || ! -f "$domain_mrs" ]]; then
@@ -153,11 +151,12 @@ save_group() {
         echo "ℹ️ 无域名规则，跳过 Domain MRS"
     fi
 
-    # ===== 生成 IP MRS =====
+    # ===== 生成 IP MRS (behavior=ipcidr, 输入纯 CIDR) =====
     if [[ "$ip_count" -gt 0 ]]; then
         local ip_mrs="$output_dir/${name}_ip.mrs"
         if [[ "$changed" == true || ! -f "$ip_mrs" ]]; then
             echo "🌐 生成 IP MRS: $name ($ip_count 条)"
+            # ✅ 关键：behavior=ipcidr 时，输入文件必须是纯 CIDR（无前缀）
             if mihomo convert-ruleset ipcidr text "$ip_file" "$ip_mrs" 2>&1; then
                 echo "📦 IP MRS 已生成: $ip_mrs"
             else
