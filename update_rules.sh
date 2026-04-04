@@ -31,12 +31,11 @@ register_temp() {
     echo "$tmp"
 }
 
-# ================= 规则提取（🔥 保留完整参数，仅做基础清洗） =================
+# ================= 规则提取（保留完整参数，仅做基础清洗） =================
 extract_rules() {
     local file="$1"
     local content=""
 
-    # 1️⃣ 尝试 YAML 提取
     if grep -qE '^\s*(payload|rules):' "$file" 2>/dev/null; then
         if command -v yq &> /dev/null; then
             content=$(yq -r '
@@ -49,10 +48,9 @@ extract_rules() {
         fi
     fi
 
-    # 2️⃣ 回退：直接读取
     [[ -z "$content" ]] && content=$(cat "$file")
 
-    # 3️⃣ 基础清洗：去注释、去YAML符号、规整首个逗号前后的空格
+    # 基础清洗：去注释、去YAML符号、规整首个逗号前后的空格
     # 🔥 关键：不使用 cut 截断，完整保留 ,no-resolve 等附加参数
     echo "$content" | \
         sed 's/#.*//' | \
@@ -113,7 +111,7 @@ save_group() {
     fi
 
     # ==============================
-    # 🔪 拆分规则：域名 vs IP（仅在此处为 MRS 转换做格式处理）
+    # 🔪 拆分规则：域名 vs IP（为 MRS 转换做格式适配）
     # ==============================
     local domain_file ip_file
     domain_file=$(register_temp)
@@ -122,9 +120,10 @@ save_group() {
     # ✅ 域名规则：保持原始格式 (DOMAIN,xxx) 直接用于 mihomo behavior=domain
     grep -E '^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD),' "$full_sorted" > "$domain_file" 2>/dev/null || true
 
-    # ✅ IP 规则：🔥 仅去除 IP-CIDR,/IP-CIDR6, 前缀，严格保留 ,no-resolve 等后续参数
+    # ✅ IP 规则：🔥 去除前缀 + 截断附加参数（mihomo 转换器仅接受纯 CIDR）
     grep -E '^(IP-CIDR|IP-CIDR6),' "$full_sorted" 2>/dev/null | \
         sed -E 's/^(IP-CIDR|IP-CIDR6),//' | \
+        cut -d',' -f1 | \
         sed 's/^[[:space:]]*//; s/[[:space:]]*$//' > "$ip_file" || true
 
     local domain_count ip_count
@@ -154,7 +153,7 @@ save_group() {
         local ip_mrs="$output_dir/${name}_ip.mrs"
         if [[ "$changed" == true || ! -f "$ip_mrs" ]]; then
             echo "🌐 生成 IP MRS: $name ($ip_count 条)"
-            # 🔥 输入文件为 纯CIDR[,no-resolve] 格式，无前缀
+            # 🔥 输入文件必须为 纯CIDR 格式，mihomo 不接受 ,no-resolve
             if mihomo convert-ruleset ipcidr text "$ip_file" "$ip_mrs" 2>&1; then
                 echo "📦 IP MRS 已生成: $ip_mrs"
             else
