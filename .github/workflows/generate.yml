@@ -1,8 +1,8 @@
-name: 🔄 自动更新规则集 (Ruleset & MRS)
+name: 6
 
 on:
   schedule:
-    - cron: '0 18 * * *'  # 每天 UTC 18:00 (北京时间 02:00) 执行
+    - cron: "0 */12 * * *"  # 每天 UTC 18:00 (北京时间 02:00) 执行
   workflow_dispatch:      # 允许在 Actions 面板手动触发
 
 permissions:
