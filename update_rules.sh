@@ -31,7 +31,7 @@ register_temp() {
     echo "$tmp"
 }
 
-# ================= 规则提取（保留完整参数，仅做基础清洗） =================
+# ================= 规则提取（保留完整 Clash 格式） =================
 extract_rules() {
     local file="$1"
     local content=""
@@ -51,7 +51,6 @@ extract_rules() {
     [[ -z "$content" ]] && content=$(cat "$file")
 
     # 基础清洗：去注释、去YAML符号、规整首个逗号前后的空格
-    # 🔥 关键：不使用 cut 截断，完整保留 ,no-resolve 等附加参数
     echo "$content" | \
         sed 's/#.*//' | \
         sed 's/^[[:space:]]*-[[:space:]]*//; s/^[[:space:]]*//; s/[[:space:]]*$//' | \
@@ -98,7 +97,7 @@ save_group() {
         changed=true
     fi
 
-    # ===== 写入完整 TXT（🔥 保持完整 Clash 格式，含 ,no-resolve） =====
+    # ===== 写入完整 TXT（保持完整 Clash 格式） =====
     if [[ "$changed" == true ]]; then
         {
             echo "# Merged RuleSet for $name"
@@ -111,26 +110,41 @@ save_group() {
     fi
 
     # ==============================
-    # 🔪 拆分规则：域名 vs IP（为 MRS 转换做格式适配）
+    # 🔪 拆分规则：为 MRS 转换准备纯净输入
     # ==============================
     local domain_file ip_file
     domain_file=$(register_temp)
     ip_file=$(register_temp)
 
-    # ✅ 域名规则：保持原始格式 (DOMAIN,xxx) 直接用于 mihomo behavior=domain
-    grep -E '^(DOMAIN|DOMAIN-SUFFIX|DOMAIN-KEYWORD),' "$full_sorted" > "$domain_file" 2>/dev/null || true
+    # ✅ 域名 MRS 输入：
+    #    - DOMAIN,xxx → xxx
+    #    - DOMAIN-SUFFIX,xxx → .xxx (自动加前导点)
+    #    - DOMAIN-KEYWORD → 排除（不支持 domain behavior）
+    {
+        # 处理 DOMAIN（精确匹配）
+        grep -E '^DOMAIN,' "$full_sorted" 2>/dev/null | \
+            sed 's/^DOMAIN,//' | cut -d',' -f1 | \
+            sed 's/^[[:space:]]*//; s/[[:space:]]*$//' || true
+        
+        # 处理 DOMAIN-SUFFIX（后缀匹配，加前导点）
+        grep -E '^DOMAIN-SUFFIX,' "$full_sorted" 2>/dev/null | \
+            sed 's/^DOMAIN-SUFFIX,//' | cut -d',' -f1 | \
+            sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | \
+            sed 's/^/./' || true  # 🔥 关键：添加前导点
+    } | grep -v '^$' | sort -u > "$domain_file"
 
-    # ✅ IP 规则：🔥 去除前缀 + 截断附加参数（mihomo 转换器仅接受纯 CIDR）
+    # ✅ IP MRS 输入：剥离前缀与附加参数，只留纯 CIDR
     grep -E '^(IP-CIDR|IP-CIDR6),' "$full_sorted" 2>/dev/null | \
         sed -E 's/^(IP-CIDR|IP-CIDR6),//' | \
         cut -d',' -f1 | \
-        sed 's/^[[:space:]]*//; s/[[:space:]]*$//' > "$ip_file" || true
+        sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | \
+        grep -v '^$' | sort -u > "$ip_file" || true
 
     local domain_count ip_count
     domain_count=$(wc -l < "$domain_file" | tr -d ' ')
     ip_count=$(wc -l < "$ip_file" | tr -d ' ')
 
-    # ===== 生成 Domain MRS (behavior=domain) =====
+    # ===== 生成 Domain MRS =====
     if [[ "$domain_count" -gt 0 ]]; then
         local domain_mrs="$output_dir/${name}_domain.mrs"
         if [[ "$changed" == true || ! -f "$domain_mrs" ]]; then
@@ -145,15 +159,14 @@ save_group() {
             echo "⏭️ Domain MRS 无变化，跳过"
         fi
     else
-        echo "ℹ️ 无域名规则，跳过 Domain MRS"
+        echo "ℹ️ 无有效域名规则（仅支持 DOMAIN/DOMAIN-SUFFIX），跳过 Domain MRS"
     fi
 
-    # ===== 生成 IP MRS (behavior=ipcidr) =====
+    # ===== 生成 IP MRS =====
     if [[ "$ip_count" -gt 0 ]]; then
         local ip_mrs="$output_dir/${name}_ip.mrs"
         if [[ "$changed" == true || ! -f "$ip_mrs" ]]; then
             echo "🌐 生成 IP MRS: $name ($ip_count 条)"
-            # 🔥 输入文件必须为 纯CIDR 格式，mihomo 不接受 ,no-resolve
             if mihomo convert-ruleset ipcidr text "$ip_file" "$ip_mrs" 2>&1; then
                 echo "📦 IP MRS 已生成: $ip_mrs"
             else
