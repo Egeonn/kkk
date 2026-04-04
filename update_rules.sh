@@ -31,15 +31,14 @@ register_temp() {
     echo "$tmp"
 }
 
-# ================= 规则提取（增强版） =================
+# ================= 规则提取（终极清洗版） =================
 extract_rules() {
     local file="$1"
     local content=""
 
-    # 检测 YAML/Clash 格式
+    # 1️⃣ 尝试 YAML 提取（兼容多种结构）
     if grep -qE '^\s*(payload|rules):' "$file" 2>/dev/null; then
         if command -v yq &> /dev/null; then
-            # 尝试多种 YAML 结构提取，兼容嵌套
             content=$(yq -r '
                 (.payload // .rules) | 
                 if type == "array" then .[] 
@@ -47,24 +46,28 @@ extract_rules() {
                 else . 
                 end
             ' "$file" 2>/dev/null || echo "")
-            
-            # 清理可能残留的前缀
-            if [[ -n "$content" ]] && echo "$content" | grep -qE '^\s*payload:'; then
-                content=$(echo "$content" | sed 's/^[[:space:]]*payload:[[:space:]]*//')
-            fi
         fi
     fi
 
-    # 回退：直接读取文件
-    if [[ -z "$content" ]]; then
-        content=$(cat "$file")
-    fi
+    # 2️⃣ 回退：直接读取
+    [[ -z "$content" ]] && content=$(cat "$file")
 
-    # 清洗：去除注释、空行、首尾空格、YAML 列表符号 "- "
+    # 3️⃣ 🔥 终极清洗流水线
     echo "$content" | \
-        grep -vE '^\s*(#|$|payload:|rules:)' | \
+        # ① 去除整行注释（# 及之后内容）
+        sed 's/#.*//' | \
+        # ② 去除 YAML 列表符号和首尾空格
         sed 's/^[[:space:]]*-[[:space:]]*//; s/^[[:space:]]*//; s/[[:space:]]*$//' | \
-        grep -vE '^$' || true
+        # ③ 过滤空行和配置关键字
+        grep -vE '^$|^(payload|rules):' | \
+        # ④ 🔑 核心修复：标准化规则格式
+        #    - 去除规则类型与逗号之间的所有空格: "DOMAIN  ," → "DOMAIN,"
+        #    - 去除逗号后的前导空格: ",  value" → ",value"
+        sed -E 's/^(DOMAIN-SUFFIX|DOMAIN|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|IP-ASN)[[:space:]]*,[[:space:]]*/\1,/' | \
+        # ⑤ 再次清理首尾空格
+        sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | \
+        # ⑥ 只保留标准格式行（确保后续 grep 能匹配）
+        grep -E '^(DOMAIN-SUFFIX|DOMAIN|DOMAIN-KEYWORD|IP-CIDR|IP-CIDR6|IP-ASN),' || true
 }
 
 # ================= 分组保存与 MRS 生成 =================
@@ -137,10 +140,13 @@ save_group() {
         local domain_mrs="$output_dir/${name}_domain.mrs"
         if [[ "$changed" == true || ! -f "$domain_mrs" ]]; then
             echo "🌐 生成 Domain MRS: $name ($domain_count 条)"
-            if mihomo convert-ruleset text "$domain_file" "$domain_mrs"; then
+            # ✅ 修复：添加 behavior=domain 参数，并捕获错误输出
+            if mihomo convert-ruleset domain text "$domain_file" "$domain_mrs" 2>&1; then
                 echo "📦 Domain MRS 已生成: $domain_mrs"
             else
-                echo "❌ Domain MRS 生成失败"
+                echo "❌ Domain MRS 生成失败，检查规则格式"
+                echo "🔍 预览前 3 条规则:" >&2
+                head -3 "$domain_file" >&2
             fi
         else
             echo "⏭️ Domain MRS 无变化，跳过"
@@ -154,10 +160,13 @@ save_group() {
         local ip_mrs="$output_dir/${name}_ip.mrs"
         if [[ "$changed" == true || ! -f "$ip_mrs" ]]; then
             echo "🌐 生成 IP MRS: $name ($ip_count 条)"
-            if mihomo convert-ruleset text "$ip_file" "$ip_mrs"; then
+            # ✅ 修复：添加 behavior=ipcidr 参数
+            if mihomo convert-ruleset ipcidr text "$ip_file" "$ip_mrs" 2>&1; then
                 echo "📦 IP MRS 已生成: $ip_mrs"
             else
-                echo "❌ IP MRS 生成失败"
+                echo "❌ IP MRS 生成失败，检查规则格式"
+                echo "🔍 预览前 3 条规则:" >&2
+                head -3 "$ip_file" >&2
             fi
         else
             echo "⏭️ IP MRS 无变化，跳过"
@@ -194,7 +203,7 @@ process_pending_group() {
 
         # 🔥 仅支持远程链接，自动跳过本地路径
         if [[ ! "$src" =~ ^https?:// ]]; then
-            echo "   ⚠️ 仅支持远程链接，跳过本地路径: $src"
+            echo "   ⚠️ 仅支持远程链接，跳过: $src"
             continue
         fi
 
