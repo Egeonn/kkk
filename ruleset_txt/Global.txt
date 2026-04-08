@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-07 01:09:04 UTC
-# Total Rules: 28884
+# Generated at 2026-04-08 01:10:22 UTC
+# Total Rules: 28885
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -6560,6 +6560,7 @@ DOMAIN-SUFFIX,crabporn.com
 DOMAIN-SUFFIX,crackle.com
 DOMAIN-SUFFIX,craigslist.org
 DOMAIN-SUFFIX,crankplayer.com
+DOMAIN-SUFFIX,crashlytics.com
 DOMAIN-SUFFIX,crates.io
 DOMAIN-SUFFIX,crazy-amateurs.com
 DOMAIN-SUFFIX,crazyav.xyz
