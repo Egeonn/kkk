@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-08 01:10:22 UTC
-# Total Rules: 28885
+# Generated at 2026-04-09 01:00:34 UTC
+# Total Rules: 28887
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -10586,6 +10586,7 @@ DOMAIN-SUFFIX,garena.tv
 DOMAIN-SUFFIX,garena.tw
 DOMAIN-SUFFIX,garena.vn
 DOMAIN-SUFFIX,garenanow.com
+DOMAIN-SUFFIX,garmin.com
 DOMAIN-SUFFIX,garotaporno.com
 DOMAIN-SUFFIX,garotoesperto.com
 DOMAIN-SUFFIX,gartlive.com
@@ -13825,6 +13826,7 @@ DOMAIN-SUFFIX,internetofeverything.com
 DOMAIN-SUFFIX,internetpopculture.com
 DOMAIN-SUFFIX,interracial-sites.com
 DOMAIN-SUFFIX,interseclab.org
+DOMAIN-SUFFIX,intervals.icu
 DOMAIN-SUFFIX,intescort.com
 DOMAIN-SUFFIX,intgram.com
 DOMAIN-SUFFIX,intheknow.com.au
