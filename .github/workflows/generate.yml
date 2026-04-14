@@ -2,7 +2,7 @@ name: 6
 
 on:
   schedule:
-    - cron: "0 */12 * * *"  
+    - cron: "0 */8 * * *"  
   workflow_dispatch:      # 允许在 Actions 面板手动触发
 
 permissions:
