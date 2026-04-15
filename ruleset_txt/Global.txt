@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-14 01:15:14 UTC
-# Total Rules: 29392
+# Generated at 2026-04-15 01:10:57 UTC
+# Total Rules: 29393
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -124,7 +124,6 @@ DOMAIN,wrds-www.wharton.upenn.edu
 DOMAIN,ws.audioscrobbler.com
 DOMAIN,yacd.haishan.me
 DOMAIN,yangzhi.app
-DOMAIN,youla-web-static.mrgcdn.ru
 DOMAIN,ztedevices.com
 DOMAIN-KEYWORD,1drv
 DOMAIN-KEYWORD,1e100
@@ -2083,6 +2082,8 @@ DOMAIN-SUFFIX,animezilla.com
 DOMAIN-SUFFIX,aniscartujo.com
 DOMAIN-SUFFIX,anistreaming.xyz
 DOMAIN-SUFFIX,ankarazirvesi2018.com
+DOMAIN-SUFFIX,ankiuser.net
+DOMAIN-SUFFIX,ankiweb.net
 DOMAIN-SUFFIX,anm.co.uk
 DOMAIN-SUFFIX,annamilk.com
 DOMAIN-SUFFIX,annas-archive.gd
@@ -2613,6 +2614,7 @@ DOMAIN-SUFFIX,archiveofourown.net
 DOMAIN-SUFFIX,archiveofourown.org
 DOMAIN-SUFFIX,archives.gov
 DOMAIN-SUFFIX,archivx.to
+DOMAIN-SUFFIX,archlinux.de
 DOMAIN-SUFFIX,archlinux.org
 DOMAIN-SUFFIX,archlinuxarm.org
 DOMAIN-SUFFIX,archlinuxcn.org
@@ -7889,7 +7891,6 @@ DOMAIN-SUFFIX,dowjones.io
 DOMAIN-SUFFIX,dowjoneson.com
 DOMAIN-SUFFIX,downdetector.com
 DOMAIN-SUFFIX,downdetectorapi.com
-DOMAIN-SUFFIX,download.aircrack-ng.org
 DOMAIN-SUFFIX,download.com
 DOMAIN-SUFFIX,download.dappcdn.com
 DOMAIN-SUFFIX,download.qatp1.net
