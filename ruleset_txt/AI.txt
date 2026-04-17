@@ -1,10 +1,11 @@
 # Merged RuleSet for AI
-# Generated at 2026-04-17 01:12:42 UTC
-# Total Rules: 186
+# Generated at 2026-04-17 09:06:01 UTC
+# Total Rules: 215
 
 DOMAIN,ai.google.dev
 DOMAIN,aida.googleapis.com
 DOMAIN,aisandbox-pa.googleapis.com
+DOMAIN,aistudio.google.com
 DOMAIN,alkalicore-pa.clients6.google.com
 DOMAIN,alkalimakersuite-pa.clients6.google.com
 DOMAIN,antigravity-pa.googleapis.com
@@ -12,38 +13,57 @@ DOMAIN,antigravity-unleash.goog
 DOMAIN,antigravity.google
 DOMAIN,antigravity.googleapis.com
 DOMAIN,api.github.com
+DOMAIN,api.githubcopilot.com
 DOMAIN,api.jetbrains.ai
 DOMAIN,api.statsig.com
 DOMAIN,api.together.xyz
+DOMAIN,api.x.ai
 DOMAIN,apple-relay.apple.com
 DOMAIN,apple-relay.cloudflare.com
 DOMAIN,apple-relay.fastly-edge.com
 DOMAIN,apple-relay.mask.apple-dns.net
+DOMAIN,bard.google.com
 DOMAIN,browser-intake-datadoghq.com
+DOMAIN,chat.mistral.ai
+DOMAIN,chatgpt.livekit.cloud
 DOMAIN,cloudaicompanion.googleapis.com
 DOMAIN,cloudcode-pa.googleapis.com
+DOMAIN,console.mistral.ai
 DOMAIN,copilot-proxy.githubusercontent.com
+DOMAIN,copilot.microsoft.com
 DOMAIN,cp4.cloudflare.com
 DOMAIN,daily-cloudcode-pa.googleapis.com
+DOMAIN,deepmind.com
+DOMAIN,deepmind.google
 DOMAIN,file.oaiusercontent.com
 DOMAIN,gateway.ai.cloudflare.com
+DOMAIN,geller-pa.googleapis.com
+DOMAIN,gemini.google.com
+DOMAIN,generativeai.google
+DOMAIN,generativelanguage.googleapis.com
 DOMAIN,gspe1-ssl.ls.apple.com
 DOMAIN,guzzoni.apple.com
+DOMAIN,host.livekit.cloud
 DOMAIN,imagine.meta.com
 DOMAIN,jules.google.com
+DOMAIN,makersuite.google.com
 DOMAIN,notebooklm-pa.googleapis.com
 DOMAIN,notebooklm.googleapis.com
 DOMAIN,o33249.ingest.sentry.io
+DOMAIN,openai.com.cdn.cloudflare.net
+DOMAIN,openaiapi-site.azureedge.net
 DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
 DOMAIN,openaicom.imgix.net
 DOMAIN,openaicomproductionae4b.blob.core.windows.net
 DOMAIN,openrouter.ai
 DOMAIN,ppl-ai-file-upload.s3.amazonaws.com
 DOMAIN,pplx-res.cloudinary.com
+DOMAIN,proactivebackend-pa.googleapis.com
 DOMAIN,production-openaicom-storage.azureedge.net
 DOMAIN,robinfrontend-pa.googleapis.com
 DOMAIN,servd-anthropic-website.b-cdn.net
 DOMAIN,sydney.bing.com
+DOMAIN,trae-api-sg.mchost.guru
 DOMAIN,webchannel-alkalimakersuite-pa.clients6.google.com
 DOMAIN,www.bing.com
 DOMAIN-KEYWORD,alkalimakersuite-pa.clients6.google.com
@@ -63,6 +83,10 @@ DOMAIN-SUFFIX,aistudio.google.com
 DOMAIN-SUFFIX,anthropic.com
 DOMAIN-SUFFIX,antigravity-unleash.goog
 DOMAIN-SUFFIX,antigravity.google
+DOMAIN-SUFFIX,apple-relay.akamaized.net
+DOMAIN-SUFFIX,apple-relay.apple.com
+DOMAIN-SUFFIX,apple-relay.cloudflare.com
+DOMAIN-SUFFIX,apple-relay.fastly-edge.com
 DOMAIN-SUFFIX,apps.mzstatic.com
 DOMAIN-SUFFIX,auth0.com
 DOMAIN-SUFFIX,bard.google.com
@@ -96,6 +120,7 @@ DOMAIN-SUFFIX,comfyregistry.org
 DOMAIN-SUFFIX,copilot.cloud.microsoft
 DOMAIN-SUFFIX,copilot.microsoft.com
 DOMAIN-SUFFIX,coze.com
+DOMAIN-SUFFIX,cp4.cloudflare.com
 DOMAIN-SUFFIX,crixet.com
 DOMAIN-SUFFIX,cursor-cdn.com
 DOMAIN-SUFFIX,cursor.com
@@ -130,6 +155,8 @@ DOMAIN-SUFFIX,grazie.aws.intellij.net
 DOMAIN-SUFFIX,grok.com
 DOMAIN-SUFFIX,grok.x.com
 DOMAIN-SUFFIX,groq.com
+DOMAIN-SUFFIX,gspe1-ssl.ls.apple.com
+DOMAIN-SUFFIX,guzzoni.apple.com
 DOMAIN-SUFFIX,h2o.ai
 DOMAIN-SUFFIX,hf.co
 DOMAIN-SUFFIX,hf.space
@@ -188,3 +215,5 @@ DOMAIN-SUFFIX,x.ai
 DOMAIN-SUFFIX,youmind.ai
 DOMAIN-SUFFIX,youmind.com
 DOMAIN-SUFFIX,youmind.site
+IP-CIDR,160.79.104.0/23, no-resolve
+IP-CIDR6, 2607:6bc0::/48, no-resolve
