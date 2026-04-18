@@ -1,55 +1,31 @@
-name: 6
+name: Generate RuleSets
 
 on:
   schedule:
-    - cron: "0 */8 * * *"  
-  workflow_dispatch:      # 允许在 Actions 面板手动触发
+    - cron: '0 */8 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write         # 授予推送代码权限
+  contents: write
 
 jobs:
-  update-rules:
+  generate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: 📥 检出代码
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1  # 浅克隆加速
+      - uses: actions/checkout@v4
 
-      - name: 🛠️ 安装运行环境 (yq & mihomo)
+      - name: Generate RuleSets
         run: |
-          set -e
-          echo "📦 安装 yq (YAML 解析器)..."
-          curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq
-          chmod +x /usr/local/bin/yq
+          chmod +x generate_rules.sh
+          ./generate_rules.sh
 
-          echo "📦 安装 mihomo (MRS 转换器)..."
-          # 获取最新稳定版标签
-          MIHOMO_TAG=$(curl -s "https://api.github.com/repos/MetaCubeX/mihomo/releases/latest" | jq -r '.tag_name')
-          echo "   当前版本: $MIHOMO_TAG"
-          
-          # 下载并解压二进制文件
-          curl -sL "https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_TAG}/mihomo-linux-amd64-${MIHOMO_TAG}.gz" | gunzip -c > /usr/local/bin/mihomo
-          chmod +x /usr/local/bin/mihomo
-          
-          mihomo -v  # 验证安装
-
-      - name: 📜 执行规则合并与转换脚本
+      - name: Commit and Push
         run: |
-          chmod +x ./update_rules.sh
-          ./update_rules.sh
-
-      - name: 💾 自动提交变更
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
           git add ruleset_txt/
-          if git diff --staged --quiet; then
-            echo "✅ 规则集无变化，跳过提交"
-          else
-            git commit -m "chore(rules): 自动更新规则集 [skip ci]"
+          git diff --staged --quiet || {
+            git commit -m "🔄 Update rulesets $(date -u '+%Y-%m-%d')"
             git push
-            echo "🚀 已成功推送更新到仓库"
-          fi
+          }
