@@ -26,18 +26,15 @@ save_group() {
     
     local output="$output_dir/${name}.txt"
     local sorted=$(mktemp)
-    local final_sorted=$(mktemp)
     
-    # ✅ 修复：重定向 sort 错误输出，避免 broken pipe
     sort -u "$input" > "$sorted" 2>/dev/null
     local final_count=$(wc -l < "$sorted")
     local dedup_count=$((raw_count - final_count))
     
     if [[ -f "$output" ]]; then
-        # ✅ 修复：重定向整个比较管道的错误
         if tail -n +5 "$output" | sort -u 2>/dev/null | cmp -s - "$sorted" 2>/dev/null; then
             echo "⏭️ $name: 原始 $raw_count 条，去重 $dedup_count 条，最终 $final_count 条，无变化"
-            rm -f "$sorted" "$final_sorted"
+            rm -f "$sorted"
             return 1
         else
             echo "📝 $name: 有更新"
@@ -60,17 +57,19 @@ save_group() {
     echo "✅ $name: 原始 $raw_count 条，去重 $dedup_count 条，最终 $final_count 条"
 }
 
+# ✅ 优化：空格清理 + 格式标准化
 process_rules() {
     sed -E \
-        -e 's/，/,/g' \                              # 中文逗号→英文逗号
-        -e '/^#/d' \                                  # 删除注释行
-        -e '/^$/d' \                                  # 删除空行
-        -e '/^DOMAIN-REGEX,/d' \                      # 删除不支持的类型
-        -e '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' \      # 删除水印规则
-        -e 's/^[•*-] *//' \                           # 删除列表前缀符号
-        -e 's/, +/,/g' \                              # 删除逗号后的空格
-        -e 's/^\.(.+)$/DOMAIN-SUFFIX,\1/' \           # ✅ .domain → DOMAIN-SUFFIX,domain
-        -e '/^[a-zA-Z0-9][-a-zA-Z0-9.]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/'  # ✅ 纯域名 → DOMAIN,域名
+        -e 's/，/,/g' \
+        -e 's/^[[:space:]]+//; s/[[:space:]]+$//' \      # ✅ 删除行首尾所有空格
+        -e '/^#/d' \
+        -e '/^$/d' \
+        -e '/^DOMAIN-REGEX,/d' \
+        -e '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' \
+        -e 's/^[•*-][[:space:]]*//' \
+        -e 's/[[:space:]]*,[[:space:]]*/,/g' \           # ✅ 删除逗号前后所有空格
+        -e 's/^\.(.+)$/DOMAIN-SUFFIX,\1/' \
+        -e '/^[a-zA-Z0-9][-a-zA-Z0-9.]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/'
 }
 
 while IFS= read -r line || [[ -n "$line" ]]; do
@@ -109,18 +108,25 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         continue
     fi
     
+    # ✅ 修复：流式处理，避免大文件读入变量导致 Broken Pipe
     if grep -qE '^payload:|^rules:' "$tmp" && command -v yq &> /dev/null; then
-        rules=$(yq -r '.payload[]' "$tmp" 2>/dev/null || yq -r '.rules[]' "$tmp" 2>/dev/null || cat "$tmp")
+        # 尝试提取 YAML 中的 rules 或 payload
+        if yq -r '.payload[]' "$tmp" 2>/dev/null | process_rules >> "$temp_file" 2>/dev/null; then
+            :
+        elif yq -r '.rules[]' "$tmp" 2>/dev/null | process_rules >> "$temp_file" 2>/dev/null; then
+            :
+        else
+            cat "$tmp" | process_rules >> "$temp_file" 2>/dev/null || true
+        fi
     else
-        rules=$(cat "$tmp")
+        cat "$tmp" | process_rules >> "$temp_file" 2>/dev/null || true
     fi
     
-    rule_count=$(printf '%s\n' "$rules" | grep -c '.' 2>/dev/null || echo 0)
+    # 统计原始规则数（用于日志显示）
+    rule_count=$(grep -c '.' "$tmp" 2>/dev/null || echo 0)
     echo "  📊 原始规则：$rule_count 条"
-    
     group_raw_count=$((group_raw_count + rule_count))
     
-    printf '%s\n' "$rules" | process_rules >> "$temp_file" 2>/dev/null || true
     rm -f "$tmp"
 done < "$source_list"
 
