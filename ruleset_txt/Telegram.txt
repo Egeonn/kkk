@@ -1,8 +1,7 @@
 # Merged RuleSet for Telegram
-# Generated at 2026-04-17 01:12:41 UTC
-# Total Rules: 31
+# Generated at 2026-04-18 11:03:32 UTC
+# Total Rules: 30
 
-DOMAIN,7h1s_rul35et_i5_mad3_by_5ukk4w-ruleset.skk.moe
 DOMAIN-SUFFIX,cdn-telegram.org
 DOMAIN-SUFFIX,graph.org
 DOMAIN-SUFFIX,legra.ph
