@@ -7,6 +7,7 @@ output_dir="./ruleset_txt"
 group_name=""
 temp_file=$(mktemp)
 has_changes=false
+group_raw_count=0
 
 mkdir -p "$output_dir"
 
@@ -25,14 +26,26 @@ save_group() {
     
     local output="$output_dir/${name}.txt"
     local sorted=$(mktemp)
-    sort -u "$input" > "$sorted"
+    local final_sorted=$(mktemp)
+    
+    # ✅ 修复：重定向 sort 错误输出，避免 broken pipe
+    sort -u "$input" > "$sorted" 2>/dev/null
     local final_count=$(wc -l < "$sorted")
     local dedup_count=$((raw_count - final_count))
     
-    if [[ -f "$output" ]] && tail -n +5 "$output" | sort -u | cmp -s - "$sorted"; then
-        echo "⏭️ $name: 原始 $raw_count 条，去重 $dedup_count 条，最终 $final_count 条，无变化"
-        rm -f "$sorted"
-        return 1
+    if [[ -f "$output" ]]; then
+        # ✅ 修复：重定向整个比较管道的错误
+        if tail -n +5 "$output" | sort -u 2>/dev/null | cmp -s - "$sorted" 2>/dev/null; then
+            echo "⏭️ $name: 原始 $raw_count 条，去重 $dedup_count 条，最终 $final_count 条，无变化"
+            rm -f "$sorted" "$final_sorted"
+            return 1
+        else
+            echo "📝 $name: 有更新"
+            has_changes=true
+        fi
+    else
+        echo "📝 $name: 首次生成"
+        has_changes=true
     fi
     
     {
@@ -45,7 +58,6 @@ save_group() {
     
     rm -f "$sorted"
     echo "✅ $name: 原始 $raw_count 条，去重 $dedup_count 条，最终 $final_count 条"
-    has_changes=true
 }
 
 process_rules() {
@@ -71,7 +83,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         group_name="${group_name%]}"
         > "$temp_file"
         group_raw_count=0
-        group_urls=""
         echo ""
         echo "═══════════════════════════════════"
         echo "📁 开始分组：$group_name"
@@ -108,7 +119,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     echo "  📊 原始规则：$rule_count 条"
     
     group_raw_count=$((group_raw_count + rule_count))
-    group_urls="${group_urls}  - ${name} (${rule_count}条)\n"
     
     printf '%s\n' "$rules" | process_rules >> "$temp_file" 2>/dev/null || true
     rm -f "$tmp"
