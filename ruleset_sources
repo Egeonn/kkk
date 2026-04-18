@@ -15,9 +15,4 @@ https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockloo
 [Global]
 https://raw.githubusercontent.com/DustinWin/domain-list-custom/refs/heads/domains/proxy.list
 https://raw.githubusercontent.com/QuixoticHeart/rule-set/refs/heads/ruleset/meta/proxy.list
-[Facebook]
-https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Facebook/Facebook_No_Resolve.yaml
-[Microsoft]
-https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Microsoft/Microsoft_No_Resolve.yaml
-[Google]
-https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Google/Google_No_Resolve.yaml
+
