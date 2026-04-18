@@ -1,11 +1,41 @@
 # Merged RuleSet for AI
-# Generated at 2026-04-17 09:06:01 UTC
-# Total Rules: 215
+# Generated at 2026-04-18 10:24:54 UTC
+# Total Rules: 250
 
+AND, ((DOMAIN-KEYWORD, chatgpt-async-webps-prod-), (DOMAIN-SUFFIX, webpubsub.azure.com))
+AND, ((DOMAIN-KEYWORD, openaicom-api-), (DOMAIN-SUFFIX, azurefd.net))
+DOMAIN, ai.google.dev
+DOMAIN, aida.googleapis.com
+DOMAIN, aistudio.google.com
+DOMAIN, alkalicore-pa.clients6.google.com
+DOMAIN, alkalimakersuite-pa.clients6.google.com
+DOMAIN, api.githubcopilot.com
+DOMAIN, api.x.ai
+DOMAIN, bard.google.com
+DOMAIN, chat.mistral.ai
+DOMAIN, chatgpt.livekit.cloud
+DOMAIN, console.mistral.ai
+DOMAIN, copilot-proxy.githubusercontent.com
+DOMAIN, copilot.microsoft.com
+DOMAIN, deepmind.com
+DOMAIN, deepmind.google
+DOMAIN, geller-pa.googleapis.com
+DOMAIN, gemini.google.com
+DOMAIN, generativeai.google
+DOMAIN, generativelanguage.googleapis.com
+DOMAIN, host.livekit.cloud
+DOMAIN, imagine.meta.com
+DOMAIN, makersuite.google.com
+DOMAIN, openai.com.cdn.cloudflare.net
+DOMAIN, openaiapi-site.azureedge.net
+DOMAIN, openaicomproductionae4b.blob.core.windows.net
+DOMAIN, proactivebackend-pa.googleapis.com
+DOMAIN, production-openaicom-storage.azureedge.net
+DOMAIN, sydney.bing.com
+DOMAIN, trae-api-sg.mchost.guru
 DOMAIN,ai.google.dev
 DOMAIN,aida.googleapis.com
 DOMAIN,aisandbox-pa.googleapis.com
-DOMAIN,aistudio.google.com
 DOMAIN,alkalicore-pa.clients6.google.com
 DOMAIN,alkalimakersuite-pa.clients6.google.com
 DOMAIN,antigravity-pa.googleapis.com
@@ -13,57 +43,38 @@ DOMAIN,antigravity-unleash.goog
 DOMAIN,antigravity.google
 DOMAIN,antigravity.googleapis.com
 DOMAIN,api.github.com
-DOMAIN,api.githubcopilot.com
 DOMAIN,api.jetbrains.ai
 DOMAIN,api.statsig.com
 DOMAIN,api.together.xyz
-DOMAIN,api.x.ai
 DOMAIN,apple-relay.apple.com
 DOMAIN,apple-relay.cloudflare.com
 DOMAIN,apple-relay.fastly-edge.com
 DOMAIN,apple-relay.mask.apple-dns.net
-DOMAIN,bard.google.com
 DOMAIN,browser-intake-datadoghq.com
-DOMAIN,chat.mistral.ai
-DOMAIN,chatgpt.livekit.cloud
 DOMAIN,cloudaicompanion.googleapis.com
 DOMAIN,cloudcode-pa.googleapis.com
-DOMAIN,console.mistral.ai
 DOMAIN,copilot-proxy.githubusercontent.com
-DOMAIN,copilot.microsoft.com
 DOMAIN,cp4.cloudflare.com
 DOMAIN,daily-cloudcode-pa.googleapis.com
-DOMAIN,deepmind.com
-DOMAIN,deepmind.google
 DOMAIN,file.oaiusercontent.com
 DOMAIN,gateway.ai.cloudflare.com
-DOMAIN,geller-pa.googleapis.com
-DOMAIN,gemini.google.com
-DOMAIN,generativeai.google
-DOMAIN,generativelanguage.googleapis.com
 DOMAIN,gspe1-ssl.ls.apple.com
 DOMAIN,guzzoni.apple.com
-DOMAIN,host.livekit.cloud
 DOMAIN,imagine.meta.com
 DOMAIN,jules.google.com
-DOMAIN,makersuite.google.com
 DOMAIN,notebooklm-pa.googleapis.com
 DOMAIN,notebooklm.googleapis.com
 DOMAIN,o33249.ingest.sentry.io
-DOMAIN,openai.com.cdn.cloudflare.net
-DOMAIN,openaiapi-site.azureedge.net
 DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
 DOMAIN,openaicom.imgix.net
 DOMAIN,openaicomproductionae4b.blob.core.windows.net
 DOMAIN,openrouter.ai
 DOMAIN,ppl-ai-file-upload.s3.amazonaws.com
 DOMAIN,pplx-res.cloudinary.com
-DOMAIN,proactivebackend-pa.googleapis.com
 DOMAIN,production-openaicom-storage.azureedge.net
 DOMAIN,robinfrontend-pa.googleapis.com
 DOMAIN,servd-anthropic-website.b-cdn.net
 DOMAIN,sydney.bing.com
-DOMAIN,trae-api-sg.mchost.guru
 DOMAIN,webchannel-alkalimakersuite-pa.clients6.google.com
 DOMAIN,www.bing.com
 DOMAIN-KEYWORD,alkalimakersuite-pa.clients6.google.com
@@ -74,6 +85,30 @@ DOMAIN-KEYWORD,notebooklm.google
 DOMAIN-KEYWORD,openai
 DOMAIN-KEYWORD,openaiapi
 DOMAIN-KEYWORD,openaicom
+DOMAIN-SUFFIX, anthropic.com
+DOMAIN-SUFFIX, chat.com
+DOMAIN-SUFFIX, chatgpt.com
+DOMAIN-SUFFIX, clau.de
+DOMAIN-SUFFIX, claude.ai
+DOMAIN-SUFFIX, claude.com
+DOMAIN-SUFFIX, claudeusercontent.com
+DOMAIN-SUFFIX, githubcopilot.com
+DOMAIN-SUFFIX, grazie.ai
+DOMAIN-SUFFIX, grazie.aws.intellij.net
+DOMAIN-SUFFIX, grok.com
+DOMAIN-SUFFIX, jetbrains.ai
+DOMAIN-SUFFIX, meta.ai
+DOMAIN-SUFFIX, mistral.ai
+DOMAIN-SUFFIX, oaistatic.com
+DOMAIN-SUFFIX, oaiusercontent.com
+DOMAIN-SUFFIX, openai.com
+DOMAIN-SUFFIX, perplexity.ai
+DOMAIN-SUFFIX, perplexity.com
+DOMAIN-SUFFIX, pplx.ai
+DOMAIN-SUFFIX, sora.com
+DOMAIN-SUFFIX, trae.ai
+DOMAIN-SUFFIX, turn.livekit.cloud
+DOMAIN-SUFFIX, x.ai
 DOMAIN-SUFFIX,ai.azure.com
 DOMAIN-SUFFIX,ai.com
 DOMAIN-SUFFIX,ai.studio
@@ -215,5 +250,5 @@ DOMAIN-SUFFIX,x.ai
 DOMAIN-SUFFIX,youmind.ai
 DOMAIN-SUFFIX,youmind.com
 DOMAIN-SUFFIX,youmind.site
-IP-CIDR,160.79.104.0/23, no-resolve
+IP-CIDR, 160.79.104.0/23, no-resolve
 IP-CIDR6, 2607:6bc0::/48, no-resolve

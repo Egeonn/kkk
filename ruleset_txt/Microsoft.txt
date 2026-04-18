@@ -1,6 +1,6 @@
 # Merged RuleSet for Microsoft
-# Generated at 2026-04-04 13:47:24 UTC
-# Total Rules: 668
+# Generated at 2026-04-18 10:24:57 UTC
+# Total Rules: 670
 
 DOMAIN,vsmarketplacebadge.apphb.com
 DOMAIN-KEYWORD,1drv
@@ -670,3 +670,5 @@ DOMAIN-SUFFIX,xboxstudios.com
 DOMAIN-SUFFIX,xbx.lv
 DOMAIN-SUFFIX,yammer.com
 DOMAIN-SUFFIX,yammerusercontent.com
+PROCESS-NAME,OneDrive
+PROCESS-NAME,OneDriveUpdater

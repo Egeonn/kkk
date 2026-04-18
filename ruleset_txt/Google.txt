@@ -1,6 +1,6 @@
 # Merged RuleSet for Google
-# Generated at 2026-04-04 13:47:24 UTC
-# Total Rules: 702
+# Generated at 2026-04-18 10:24:57 UTC
+# Total Rules: 708
 
 DOMAIN,voice.telephony.goog
 DOMAIN-KEYWORD,appspot
@@ -704,3 +704,9 @@ IP-CIDR,173.194.0.0/16,no-resolve
 IP-CIDR,216.73.80.0/20,no-resolve
 IP-CIDR,74.125.0.0/16,no-resolve
 IP-CIDR6,2620:120:e000::/40,no-resolve
+PROCESS-NAME,BackupandSync
+PROCESS-NAME,GoogleDriveFS.exe
+PROCESS-NAME,com.android.vending
+PROCESS-NAME,com.google.android.gms
+PROCESS-NAME,com.google.android.gsf
+PROCESS-NAME,com.google.android.play.games
