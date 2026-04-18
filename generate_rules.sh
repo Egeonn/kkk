@@ -66,6 +66,7 @@ process_rules() {
         -e '/^#/d' \
         -e '/^$/d' \
         -e '/^DOMAIN-REGEX,/d' \
+        -e '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' \
         -e 's/^[•*-] *//' \
         -e 's/, +/,/g' \
         -e 's/^\+\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' \
