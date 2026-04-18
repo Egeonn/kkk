@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-17 01:12:49 UTC
-# Total Rules: 29438
+# Generated at 2026-04-18 01:06:17 UTC
+# Total Rules: 29437
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -469,7 +469,6 @@ DOMAIN-SUFFIX,2gis.kz
 DOMAIN-SUFFIX,2gis.ru
 DOMAIN-SUFFIX,2gis.tech
 DOMAIN-SUFFIX,2gis.tj
-DOMAIN-SUFFIX,2gis.ua
 DOMAIN-SUFFIX,2gis.uz
 DOMAIN-SUFFIX,2k.com
 DOMAIN-SUFFIX,2kcoretech.online
