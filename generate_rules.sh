@@ -62,16 +62,15 @@ save_group() {
 
 process_rules() {
     sed -E \
-        -e 's/，/,/g' \
-        -e '/^#/d' \
-        -e '/^$/d' \
-        -e '/^DOMAIN-REGEX,/d' \
-        -e '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' \
-        -e 's/^[•*-] *//' \
-        -e 's/, +/,/g' \
-        -e 's/^\+\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' \
-        -e 's/^\*\.([a-zA-Z0-9.-]+)$/DOMAIN-SUFFIX,\1/' \
-        -e '/^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/'
+        -e 's/，/,/g' \                              # 中文逗号→英文逗号
+        -e '/^#/d' \                                  # 删除注释行
+        -e '/^$/d' \                                  # 删除空行
+        -e '/^DOMAIN-REGEX,/d' \                      # 删除不支持的类型
+        -e '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' \      # 删除水印规则
+        -e 's/^[•*-] *//' \                           # 删除列表前缀符号
+        -e 's/, +/,/g' \                              # 删除逗号后的空格
+        -e 's/^\.(.+)$/DOMAIN-SUFFIX,\1/' \           # ✅ .domain → DOMAIN-SUFFIX,domain
+        -e '/^[a-zA-Z0-9][-a-zA-Z0-9.]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/'  # ✅ 纯域名 → DOMAIN,域名
 }
 
 while IFS= read -r line || [[ -n "$line" ]]; do
