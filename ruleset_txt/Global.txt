@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-20 05:53:05 UTC
-# Total Rules: 25371
+# Generated at 2026-04-21 01:11:52 UTC
+# Total Rules: 25373
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -14898,6 +14898,7 @@ DOMAIN-SUFFIX,minilondon.ca
 DOMAIN-SUFFIX,minilondon.co
 DOMAIN-SUFFIX,minimarkham.ca
 DOMAIN-SUFFIX,minimarkham.com
+DOMAIN-SUFFIX,minimax.io
 DOMAIN-SUFFIX,minimoncton.ca
 DOMAIN-SUFFIX,minimoncton.com
 DOMAIN-SUFFIX,minimontrealcentre.ca
@@ -19322,6 +19323,7 @@ DOMAIN-SUFFIX,scnsrc.me
 DOMAIN-SUFFIX,scolle.net
 DOMAIN-SUFFIX,scoop.sh
 DOMAIN-SUFFIX,scopus.com
+DOMAIN-SUFFIX,scorecardresearch.com
 DOMAIN-SUFFIX,scoreclassics.com
 DOMAIN-SUFFIX,scorediscounts.club
 DOMAIN-SUFFIX,scoregroup.com
