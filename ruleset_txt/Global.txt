@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-21 01:11:52 UTC
-# Total Rules: 25373
+# Generated at 2026-04-22 01:10:16 UTC
+# Total Rules: 25374
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -11879,6 +11879,7 @@ DOMAIN-SUFFIX,impermium.com
 DOMAIN-SUFFIX,improd.works
 DOMAIN-SUFFIX,imstagram.com
 DOMAIN-SUFFIX,imtagram.com
+DOMAIN-SUFFIX,imtintl.com
 DOMAIN-SUFFIX,imzog.com
 DOMAIN-SUFFIX,inaporn.com
 DOMAIN-SUFFIX,inasian.club
