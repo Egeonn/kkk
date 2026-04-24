@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-23 01:16:05 UTC
-# Total Rules: 25382
+# Generated at 2026-04-24 01:15:28 UTC
+# Total Rules: 25385
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -1100,6 +1100,7 @@ DOMAIN-SUFFIX,agedm.tv
 DOMAIN-SUFFIX,agefans.com
 DOMAIN-SUFFIX,agemys.org
 DOMAIN-SUFFIX,agendaweek.com
+DOMAIN-SUFFIX,agentclientprotocol.com
 DOMAIN-SUFFIX,agilebits.com
 DOMAIN-SUFFIX,agnesb.fr
 DOMAIN-SUFFIX,agoogleaday.com
@@ -17617,6 +17618,7 @@ DOMAIN-SUFFIX,placemyad.com.au
 DOMAIN-SUFFIX,placesdocs.com
 DOMAIN-SUFFIX,planetminecraft.com
 DOMAIN-SUFFIX,planetsuzy.org
+DOMAIN-SUFFIX,plannotator.ai
 DOMAIN-SUFFIX,plansondemand.com
 DOMAIN-SUFFIX,plantsvszombies2.com
 DOMAIN-SUFFIX,plasticlabs.com
@@ -22053,6 +22055,7 @@ DOMAIN-SUFFIX,twister.net.co
 DOMAIN-SUFFIX,twistys.com
 DOMAIN-SUFFIX,twitch.tv
 DOMAIN-SUFFIX,twitchcdn.net
+DOMAIN-SUFFIX,twitchcon.com
 DOMAIN-SUFFIX,twitchsvc.net
 DOMAIN-SUFFIX,twitcomike.jp
 DOMAIN-SUFFIX,twitiq.com
