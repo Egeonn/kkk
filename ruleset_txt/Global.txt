@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-24 01:15:28 UTC
-# Total Rules: 25385
+# Generated at 2026-04-25 01:08:36 UTC
+# Total Rules: 25386
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -21074,6 +21074,7 @@ DOMAIN-SUFFIX,teatroporno.com
 DOMAIN-SUFFIX,tech-mail.ru
 DOMAIN-SUFFIX,tech26.de
 DOMAIN-SUFFIX,techatbloomberg.com
+DOMAIN-SUFFIX,techbang.com
 DOMAIN-SUFFIX,techcrunch.com
 DOMAIN-SUFFIX,techhub.ms
 DOMAIN-SUFFIX,techliquidators.com
