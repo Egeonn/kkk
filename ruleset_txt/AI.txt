@@ -1,6 +1,6 @@
 # Merged RuleSet for AI
-# Generated at 2026-04-24 01:15:26 UTC
-# Total Rules: 225
+# Generated at 2026-04-28 01:24:57 UTC
+# Total Rules: 226
 
 AND,((DOMAIN-KEYWORD,chatgpt-async-webps-prod-),(DOMAIN-SUFFIX,webpubsub.azure.com))
 AND,((DOMAIN-KEYWORD,openaicom-api-),(DOMAIN-SUFFIX,azurefd.net))
@@ -225,5 +225,6 @@ DOMAIN-SUFFIX,x.ai
 DOMAIN-SUFFIX,youmind.ai
 DOMAIN-SUFFIX,youmind.com
 DOMAIN-SUFFIX,youmind.site
+DOMAIN-SUFFIX,zed.dev
 IP-CIDR,160.79.104.0/23,no-resolve
 IP-CIDR6,2607:6bc0::/48,no-resolve
