@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-04-29 01:27:51 UTC
-# Total Rules: 25387
+# Generated at 2026-05-03 01:24:12 UTC
+# Total Rules: 25388
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -20151,6 +20151,7 @@ DOMAIN-SUFFIX,softbankusa.net
 DOMAIN-SUFFIX,softbankventuresasia.com
 DOMAIN-SUFFIX,softbankworld.com
 DOMAIN-SUFFIX,softether-download.com
+DOMAIN-SUFFIX,softether.co.jp
 DOMAIN-SUFFIX,softether.org
 DOMAIN-SUFFIX,softfamous.com
 DOMAIN-SUFFIX,softmodels.net
