@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-03 01:24:12 UTC
-# Total Rules: 25388
+# Generated at 2026-05-04 01:22:59 UTC
+# Total Rules: 25389
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -6593,6 +6593,7 @@ DOMAIN-SUFFIX,digitalcertvalidation.com
 DOMAIN-SUFFIX,digitaldesire.com
 DOMAIN-SUFFIX,digitalhub.com
 DOMAIN-SUFFIX,digitalid.ch
+DOMAIN-SUFFIX,digitalocean-ui.com
 DOMAIN-SUFFIX,digitalocean.com
 DOMAIN-SUFFIX,digitaloceanspaces.com
 DOMAIN-SUFFIX,digitalpack.com
