@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-07 01:26:02 UTC
-# Total Rules: 25513
+# Generated at 2026-05-08 01:28:59 UTC
+# Total Rules: 25514
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -22335,6 +22335,7 @@ DOMAIN-SUFFIX,ultravpn.com
 DOMAIN-SUFFIX,ultravpn.fr
 DOMAIN-SUFFIX,uma.media
 DOMAIN-SUFFIX,umagazine.com.hk
+DOMAIN-SUFFIX,umap.openstreetmap.fr
 DOMAIN-SUFFIX,umass.edu
 DOMAIN-SUFFIX,umbrella.com
 DOMAIN-SUFFIX,umschool.net
