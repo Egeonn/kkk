@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-08 01:28:59 UTC
-# Total Rules: 25514
+# Generated at 2026-05-09 01:26:13 UTC
+# Total Rules: 25515
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -23177,6 +23177,7 @@ DOMAIN-SUFFIX,vodafone.com.au
 DOMAIN-SUFFIX,vodafone.com.tr
 DOMAIN-SUFFIX,vodafone.de
 DOMAIN-SUFFIX,vodafone.it
+DOMAIN-SUFFIX,vodafone.nl
 DOMAIN-SUFFIX,voicettank.org
 DOMAIN-SUFFIX,vokevr.com
 DOMAIN-SUFFIX,vol.moe
