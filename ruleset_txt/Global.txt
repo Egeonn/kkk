@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-14 01:49:16 UTC
-# Total Rules: 25621
+# Generated at 2026-05-16 01:27:19 UTC
+# Total Rules: 25622
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -23541,6 +23541,7 @@ DOMAIN-SUFFIX,vulgarx.com
 DOMAIN-SUFFIX,vultr.com
 DOMAIN-SUFFIX,vultryhw.com
 DOMAIN-SUFFIX,vuvuzela.io
+DOMAIN-SUFFIX,vv1865.com
 DOMAIN-SUFFIX,vzw.com
 DOMAIN-SUFFIX,w-mt.co
 DOMAIN-SUFFIX,w-pool.com
