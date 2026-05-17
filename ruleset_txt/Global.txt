@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-16 01:27:19 UTC
-# Total Rules: 25622
+# Generated at 2026-05-17 01:44:07 UTC
+# Total Rules: 25623
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -2304,6 +2304,7 @@ DOMAIN-SUFFIX,archives.gov
 DOMAIN-SUFFIX,archivx.to
 DOMAIN-SUFFIX,archlinux.de
 DOMAIN-SUFFIX,archlinux.org
+DOMAIN-SUFFIX,archlinux.page
 DOMAIN-SUFFIX,archlinuxarm.org
 DOMAIN-SUFFIX,archlinuxcn.org
 DOMAIN-SUFFIX,arcraiders.com
