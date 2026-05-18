@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-17 01:44:07 UTC
-# Total Rules: 25623
+# Generated at 2026-05-18 01:53:08 UTC
+# Total Rules: 25625
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -20041,6 +20041,7 @@ DOMAIN-SUFFIX,shywifeswap.com
 DOMAIN-SUFFIX,siam.org
 DOMAIN-SUFFIX,sibreal.org
 DOMAIN-SUFFIX,sidelinesnews.com
+DOMAIN-SUFFIX,sider.ai
 DOMAIN-SUFFIX,siege-amazon.com
 DOMAIN-SUFFIX,sifangclub.com
 DOMAIN-SUFFIX,sigcomm.org
@@ -25492,6 +25493,7 @@ DOMAIN-SUFFIX,zhainanjidi.xyz
 DOMAIN-SUFFIX,zhainanjidid.top
 DOMAIN-SUFFIX,zhangboz1.xyz
 DOMAIN-SUFFIX,zhangtianliang.com
+DOMAIN-SUFFIX,zhangzhehan.net
 DOMAIN-SUFFIX,zhanlve.org
 DOMAIN-SUFFIX,zhao.1984.city
 DOMAIN-SUFFIX,zhengjian.org
