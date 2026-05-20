@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-18 11:34:11 UTC
-# Total Rules: 25645
+# Generated at 2026-05-20 01:52:47 UTC
+# Total Rules: 25649
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -1381,6 +1381,7 @@ DOMAIN-SUFFIX,alchemysynth.com
 DOMAIN-SUFFIX,alefbank.com
 DOMAIN-SUFFIX,alexa.com
 DOMAIN-SUFFIX,alexanderstreet.com
+DOMAIN-SUFFIX,alfa.me
 DOMAIN-SUFFIX,alfabank.oavdo.amc
 DOMAIN-SUFFIX,alfabank.ru
 DOMAIN-SUFFIX,alfabank.st
@@ -15786,6 +15787,7 @@ DOMAIN-SUFFIX,mysocialworklab.com
 DOMAIN-SUFFIX,myspacecdn.com
 DOMAIN-SUFFIX,mysql.com
 DOMAIN-SUFFIX,mystrikingly.com
+DOMAIN-SUFFIX,myteamspeak.com
 DOMAIN-SUFFIX,myteenwebcam.com
 DOMAIN-SUFFIX,mythicentertainment.com
 DOMAIN-SUFFIX,mythicentertainment.net
@@ -21277,6 +21279,8 @@ DOMAIN-SUFFIX,teachmyass.com
 DOMAIN-SUFFIX,teachparentstech.org
 DOMAIN-SUFFIX,teamneedforspeed.com
 DOMAIN-SUFFIX,teamskeet.com
+DOMAIN-SUFFIX,teamspeak-services.com
+DOMAIN-SUFFIX,teamspeak.com
 DOMAIN-SUFFIX,teamviewer.com
 DOMAIN-SUFFIX,teamviewer.us
 DOMAIN-SUFFIX,tearapeak.com
