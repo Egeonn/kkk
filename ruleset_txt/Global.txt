@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-20 01:52:47 UTC
-# Total Rules: 25649
+# Generated at 2026-05-20 10:38:41 UTC
+# Total Rules: 25652
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -15458,10 +15458,12 @@ DOMAIN-SUFFIX,moxing.mobi
 DOMAIN-SUFFIX,moxing.news
 DOMAIN-SUFFIX,moystoys.com
 DOMAIN-SUFFIX,mozgcp.net
+DOMAIN-SUFFIX,mozilla.ai
 DOMAIN-SUFFIX,mozilla.com
 DOMAIN-SUFFIX,mozilla.community
 DOMAIN-SUFFIX,mozilla.net
 DOMAIN-SUFFIX,mozilla.org
+DOMAIN-SUFFIX,mozillafoundation.org
 DOMAIN-SUFFIX,mp.world
 DOMAIN-SUFFIX,mpettis.com
 DOMAIN-SUFFIX,mpfinance.com
@@ -15810,6 +15812,7 @@ DOMAIN-SUFFIX,myxxgirl.com
 DOMAIN-SUFFIX,myyoungmomisnude.com
 DOMAIN-SUFFIX,myyoungwifeisnude.com
 DOMAIN-SUFFIX,mzed.com
+DOMAIN-SUFFIX,mzl.la
 DOMAIN-SUFFIX,mzstatic.com
 DOMAIN-SUFFIX,n0vadesktop.com
 DOMAIN-SUFFIX,n26.com
