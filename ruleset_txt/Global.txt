@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-20 10:38:41 UTC
-# Total Rules: 25652
+# Generated at 2026-05-21 01:52:00 UTC
+# Total Rules: 25658
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -9376,6 +9376,7 @@ DOMAIN-SUFFIX,g-technology.com
 DOMAIN-SUFFIX,g-tun.com
 DOMAIN-SUFFIX,g-tvapp.com
 DOMAIN-SUFFIX,g-xxxhub.com
+DOMAIN-SUFFIX,g.ai
 DOMAIN-SUFFIX,g.co
 DOMAIN-SUFFIX,g.dev
 DOMAIN-SUFFIX,g.page
@@ -13647,6 +13648,7 @@ DOMAIN-SUFFIX,lenkino.xxx
 DOMAIN-SUFFIX,lenporno.net
 DOMAIN-SUFFIX,lenporno.red
 DOMAIN-SUFFIX,lenwhite.com
+DOMAIN-SUFFIX,leonardo.ai
 DOMAIN-SUFFIX,leporno.org
 DOMAIN-SUFFIX,lepornochaud.com
 DOMAIN-SUFFIX,lepornofrais.com
@@ -18783,6 +18785,7 @@ DOMAIN-SUFFIX,ramcity.com.au
 DOMAIN-SUFFIX,randyblue.com
 DOMAIN-SUFFIX,rapefilms.net
 DOMAIN-SUFFIX,rapetube.me
+DOMAIN-SUFFIX,raphael.app
 DOMAIN-SUFFIX,rapidmoviez.com
 DOMAIN-SUFFIX,rapidprototyping-cadcam.com
 DOMAIN-SUFFIX,rapidssl.com
@@ -19243,6 +19246,7 @@ DOMAIN-SUFFIX,ruhub.tv
 DOMAIN-SUFFIX,ruinedking.com
 DOMAIN-SUFFIX,rukoebxx.com
 DOMAIN-SUFFIX,rulaisc-tv.buzz
+DOMAIN-SUFFIX,rule34.us
 DOMAIN-SUFFIX,rule34.xxx
 DOMAIN-SUFFIX,rule34h.com
 DOMAIN-SUFFIX,rule34pornvids.com
@@ -20497,6 +20501,7 @@ DOMAIN-SUFFIX,sos44.com
 DOMAIN-SUFFIX,sosad.fun
 DOMAIN-SUFFIX,soso7778.com
 DOMAIN-SUFFIX,sosreader.com
+DOMAIN-SUFFIX,sotwe.com
 DOMAIN-SUFFIX,soubory.com
 DOMAIN-SUFFIX,souka.xyz
 DOMAIN-SUFFIX,soulcaliburhentai.net
@@ -21234,6 +21239,7 @@ DOMAIN-SUFFIX,taose.in
 DOMAIN-SUFFIX,tap.io
 DOMAIN-SUFFIX,tapanwap.com
 DOMAIN-SUFFIX,tapatalk.com
+DOMAIN-SUFFIX,tapnow.ai
 DOMAIN-SUFFIX,taptap.io
 DOMAIN-SUFFIX,taptotokyo.com
 DOMAIN-SUFFIX,taqunuhai.vip
