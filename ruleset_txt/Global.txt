@@ -1,6 +1,6 @@
 # Merged RuleSet for Global
-# Generated at 2026-05-23 01:44:30 UTC
-# Total Rules: 25661
+# Generated at 2026-05-26 01:49:02 UTC
+# Total Rules: 25662
 
 DOMAIN,1password.drift.click
 DOMAIN,a4e8s8k3.map2.ssl.hwcdn.net
@@ -14801,6 +14801,7 @@ DOMAIN-SUFFIX,microvpn.com
 DOMAIN-SUFFIX,micstl.com
 DOMAIN-SUFFIX,midatlanticbmwmotorcycles.com
 DOMAIN-SUFFIX,midentsolutions.com
+DOMAIN-SUFFIX,midjourney.com
 DOMAIN-SUFFIX,midoushe.com
 DOMAIN-SUFFIX,mie.co.jp
 DOMAIN-SUFFIX,miexnoviadesnuda.com
