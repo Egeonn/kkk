@@ -1,6 +1,6 @@
 # Merged RuleSet for AI
-# Generated at 2026-05-26 01:49:00 UTC
-# Total Rules: 235
+# Generated at 2026-05-27 01:56:47 UTC
+# Total Rules: 236
 
 AND,((DOMAIN-KEYWORD,chatgpt-async-webps-prod-),(DOMAIN-SUFFIX,webpubsub.azure.com))
 AND,((DOMAIN-KEYWORD,openaicom-api-),(DOMAIN-SUFFIX,azurefd.net))
@@ -157,6 +157,7 @@ DOMAIN-SUFFIX,gateway.icloud.com
 DOMAIN-SUFFIX,geller-pa.googleapis.com
 DOMAIN-SUFFIX,gemini.google
 DOMAIN-SUFFIX,gemini.google.com
+DOMAIN-SUFFIX,gemini.gstatic.com
 DOMAIN-SUFFIX,generativeai.google
 DOMAIN-SUFFIX,generativelanguage.googleapis.com
 DOMAIN-SUFFIX,githubcopilot.com
