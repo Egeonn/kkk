@@ -19,22 +19,34 @@ trap cleanup EXIT
 
 save_group() {
     local name="$1"
-    local input="$2"
-    local raw_count="$3"
+    local input="$2"        # 这是经过 sed 清洗后的临时文件
+    local raw_count="$3"    # 原始文件的总行数
     
     [[ ! -s "$input" ]] && return 1
     
     local output="$output_dir/${name}.txt"
     local sorted=$(mktemp)
     
+    # 1. 统计清洗后的有效行数 (未去重)
+    local valid_count
+    valid_count=$(wc -l < "$input")
+    
+    # 2. 计算被 sed 清洗掉的行数 (注释、空行、正则等)
+    local filtered_count=$((raw_count - valid_count))
+    
+    # 3. 进行排序和真正的去重
     sort -u "$input" > "$sorted" 2>/dev/null
+    
+    # 4. 统计最终的规则数
     local final_count
     final_count=$(wc -l < "$sorted")
-    local dedup_count=$((raw_count - final_count))
+    
+    # 5. 计算真正的重复条数
+    local dedup_count=$((valid_count - final_count))
     
     if [[ -f "$output" ]]; then
         if tail -n +5 "$output" | sort -u 2>/dev/null | cmp -s - "$sorted" 2>/dev/null; then
-            echo "⏭️  $name: 原始 $raw_count 条，去重 $dedup_count 条，最终 $final_count 条，无变化"
+            echo "⏭️  $name: 无变化 (原始 $raw_count 行，清洗 $filtered_count 行，去重 $dedup_count 条，最终 $final_count 条)"
             rm -f "$sorted"
             return 1
         else
@@ -55,10 +67,8 @@ save_group() {
     } > "$output"
     
     rm -f "$sorted"
-    echo "✅ $name: 原始 $raw_count 条，去重 $dedup_count 条，最终 $final_count 条"
+    echo "✅ $name: 原始 $raw_count 行，清洗 $filtered_count 行，去重 $dedup_count 条，最终 $final_count 条"
 }
-
-# ✅ 高性能规则处理 (纯 sed 解析，抛弃 yq 依赖，大幅提升速度并修复漏规则问题)
 process_rules() {
     LC_ALL=C sed -E \
         -e 's/，/,/g' \
