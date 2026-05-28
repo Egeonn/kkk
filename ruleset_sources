@@ -13,6 +13,7 @@ https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockloo
 https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/refs/heads/master/discretion/anv.txt
 https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/refs/heads/master/discretion/dns.txt
 https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/refs/heads/master/discretion/pcdn.txt
+https://raw.githubusercontent.com/QuixoticHeart/rule-set/refs/heads/ruleset/meta/httpdns.list
 [Global]
 https://raw.githubusercontent.com/DustinWin/domain-list-custom/refs/heads/domains/proxy.list
 [Steam]
