@@ -13,19 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Generate RuleSets
         run: |
           chmod +x generate_rules.sh
           ./generate_rules.sh
 
-      - name: Commit and Push
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git add ruleset_txt/
-          git diff --staged --quiet || {
-            git commit -m "🔄 Update rulesets $(date -u '+%Y-%m-%d')"
-            git push
-          }
+      - name: Deploy to release branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: release           # 指定推送到 release 分支
+          publish_dir: ./ruleset_txt        # 将云端生成的 ruleset_txt 目录内容推出去
+          force_orphan: true                # 每次覆盖并清空旧历史，防止仓库体积爆炸
+          commit_message: "🔄 Auto update rulesets"
