@@ -25,7 +25,8 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: release           # 指定推送到 release 分支
-          publish_dir: ./ruleset_txt        # 将云端生成的 ruleset_txt 目录内容推出去
-          force_orphan: true                # 每次覆盖并清空旧历史，防止仓库体积爆炸
+          publish_branch: release
+          publish_dir: ./ruleset_txt
+          force_orphan: true
           commit_message: "🔄 Auto update rulesets"
+          enable_jekyll: true 
