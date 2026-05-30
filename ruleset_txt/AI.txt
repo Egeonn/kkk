@@ -1,6 +1,6 @@
 # Merged RuleSet for AI
-# Generated at 2026-05-27 01:56:47 UTC
-# Total Rules: 236
+# Generated at 2026-05-30 01:46:30 UTC
+# Total Rules: 237
 
 AND,((DOMAIN-KEYWORD,chatgpt-async-webps-prod-),(DOMAIN-SUFFIX,webpubsub.azure.com))
 AND,((DOMAIN-KEYWORD,openaicom-api-),(DOMAIN-SUFFIX,azurefd.net))
@@ -97,6 +97,7 @@ DOMAIN-SUFFIX,apple-relay.apple.com
 DOMAIN-SUFFIX,apple-relay.cloudflare.com
 DOMAIN-SUFFIX,apple-relay.fastly-edge.com
 DOMAIN-SUFFIX,apps.mzstatic.com
+DOMAIN-SUFFIX,arena.ai
 DOMAIN-SUFFIX,auth0.com
 DOMAIN-SUFFIX,bard.google.com
 DOMAIN-SUFFIX,byteoversea.com
