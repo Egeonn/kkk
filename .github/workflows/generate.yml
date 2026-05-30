@@ -1,4 +1,4 @@
-name: generate ruleSets
+name: generate rules
 
 on:
   schedule:
