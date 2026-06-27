@@ -72,6 +72,7 @@ save_group() {
 process_rules() {
     LC_ALL=C sed -E \
         -e 's/，/,/g' \
+        -e 's/[[:space:]]+#.*$//' \
         -e 's/^[[:space:]]+//; s/[[:space:]]+$//' \
         -e '/^#/d' \
         -e '/^$/d' \
