@@ -80,7 +80,6 @@ process_rules() {
         -e 's/^[•*-][[:space:]]+//' \
         -e "s/^['\"]//; s/['\"]$//" \
         -e '/^DOMAIN-REGEX,/d' \
-        -e '/7h1s_rul35et_i5_mad3_by_5ukk4w/d' \
         -e 's/[[:space:]]*,[[:space:]]*/,/g' \
         -e 's/^\+\.(.+)$/DOMAIN-SUFFIX,\1/' \
         -e 's/^\.(.+)$/DOMAIN-SUFFIX,\1/' \
