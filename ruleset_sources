@@ -1,10 +1,8 @@
 [GeositeCN]
 https://raw.githubusercontent.com/Accademia/Additional_Rule_For_Clash/refs/heads/main/GeositeCN/GeositeCN.yaml
 [Telegram]
-https://ruleset.skk.moe/Clash/non_ip/telegram.txt
-https://ruleset.skk.moe/Clash/ip/telegram.txt
+https://raw.githubusercontent.com/Repcz/Tool/refs/heads/X/mihomo/Rules/Telegram.list
 [AI]
-https://raw.githubusercontent.com/QuixoticHeart/rule-set/refs/heads/ruleset/meta/ai.list
 https://raw.githubusercontent.com/DustinWin/domain-list-custom/refs/heads/domains/ai.list
 https://raw.githubusercontent.com/Repcz/Tool/refs/heads/X/mihomo/Rules/AI.list
 https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/rule/AI.list
