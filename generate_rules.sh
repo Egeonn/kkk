@@ -71,11 +71,17 @@ save_group() {
 }
 process_rules() {
     LC_ALL=C sed -E \
+        -e '1s/^\xef\xbb\xbf//' \
         -e 's/，/,/g' \
         -e 's/[[:space:]]+#.*$//' \
         -e 's/^[[:space:]]+//; s/[[:space:]]+$//' \
-        -e '/skk\.moe$/d'
-        -e '/^#/d' \
+        -e '/^[[:space:]]*#/d' \
+        -e '/^[#=\-\*]+$/d' \
+        -e '/content-hash/d' \
+        -e '/Last Updated/d' \
+        -e '/License:/d' \
+        -e '/Size: /d' \
+        -e '/^[[:space:]]*EOF[[:space:]]*$/d' \
         -e '/^$/d' \
         -e '/^(payload|rules):/d' \
         -e 's/^[•*-][[:space:]]+//' \
@@ -86,7 +92,8 @@ process_rules() {
         -e 's/^\.(.+)$/DOMAIN-SUFFIX,\1/' \
         -e '/^[a-zA-Z0-9][-a-zA-Z0-9.]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/' \
         -e '/^[0-9]{1,3}(\.[0-9]{1,3}){3}(\/[0-9]{1,2})?$/s/^/IP-CIDR,/' \
-        -e '/^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(\/[0-9]{1,3})?$/s/^/IP-CIDR6,/'
+        -e '/^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(\/[0-9]{1,3})?$/s/^/IP-CIDR6,/' \
+        -e '/skk\.moe$/d'
 }
 
 while IFS= read -r line || [[ -n "$line" ]]; do
