@@ -74,6 +74,7 @@ process_rules() {
         -e 's/，/,/g' \
         -e 's/[[:space:]]+#.*$//' \
         -e 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+        -e '/skk\.moe$/d'
         -e '/^#/d' \
         -e '/^$/d' \
         -e '/^(payload|rules):/d' \
