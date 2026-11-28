@@ -19,7 +19,7 @@ trap cleanup EXIT
 
 save_group() {
     local name="$1"
-    local input="$2"        # 经过 sed 清洗后的临时文件
+    local input="$2"        # 这是经过 sed 清洗后的临时文件
     local raw_count="$3"    # 原始文件的总行数
     
     [[ ! -s "$input" ]] && return 1
@@ -31,7 +31,7 @@ save_group() {
     local valid_count
     valid_count=$(wc -l < "$input")
     
-    # 2. 计算被 sed 清洗掉的行数 (注释、空行、无效格式等)
+    # 2. 计算被 sed 清洗掉的行数 (注释、空行、正则等)
     local filtered_count=$((raw_count - valid_count))
     
     # 3. 进行排序和真正的去重
@@ -45,7 +45,6 @@ save_group() {
     local dedup_count=$((valid_count - final_count))
     
     if [[ -f "$output" ]]; then
-        # 跳过前4行注释，比对实际规则内容是否发生变化
         if tail -n +5 "$output" | sort -u 2>/dev/null | cmp -s - "$sorted" 2>/dev/null; then
             echo "⏭️  $name: 无变化 (原始 $raw_count 行，清洗 $filtered_count 行，去重 $dedup_count 条，最终 $final_count 条)"
             rm -f "$sorted"
@@ -59,7 +58,6 @@ save_group() {
         has_changes=true
     fi
     
-    # 写入最终文件
     {
         echo "# Merged RuleSet for $name"
         echo "# Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
@@ -71,35 +69,33 @@ save_group() {
     rm -f "$sorted"
     echo "✅ $name: 原始 $raw_count 行，清洗 $filtered_count 行，去重 $dedup_count 条，最终 $final_count 条"
 }
-
 process_rules() {
     LC_ALL=C sed -E \
         -e '1s/^\xef\xbb\xbf//' \
         -e 's/，/,/g' \
+        -e 's/[[:space:]]+#.*$//' \
+        -e 's/^[[:space:]]+//; s/[[:space:]]+$//' \
         -e '/^[[:space:]]*#/d' \
-        -e '/^[#=\-*]+$/d' \
+        -e '/^[#=\-\*]+$/d' \
         -e '/^[[:space:]]*EOF[[:space:]]*$/d' \
         -e '/^$/d' \
         -e '/^(payload|rules):/d' \
-        -e 's/^[•\*\-][[:space:]]+//' \
-        -e 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+        -e 's/^[•*-][[:space:]]+//' \
         -e "s/^['\"]//; s/['\"]$//" \
-        -e 's/^[[:space:]]+//; s/[[:space:]]+$//' \
-        -e 's/[[:space:]]*,[[:space:]]*/,/g' \
         -e '/^DOMAIN-REGEX,/d' \
-        -e 's/^\.\.?(.+)$/DOMAIN-SUFFIX,\1/' \
-        -e '/^[a-zA-Z0-9]([-a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/s/^/DOMAIN,/' \
+        -e 's/[[:space:]]*,[[:space:]]*/,/g' \
+        -e 's/^\+\.(.+)$/DOMAIN-SUFFIX,\1/' \
+        -e 's/^\.(.+)$/DOMAIN-SUFFIX,\1/' \
+        -e '/^[a-zA-Z0-9][-a-zA-Z0-9.]*\.[a-zA-Z]{2,}$/s/^/DOMAIN,/' \
         -e '/^[0-9]{1,3}(\.[0-9]{1,3}){3}(\/[0-9]{1,2})?$/s/^/IP-CIDR,/' \
         -e '/^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(\/[0-9]{1,3})?$/s/^/IP-CIDR6,/' \
         -e '/skk\.moe$/d'
 }
 
 while IFS= read -r line || [[ -n "$line" ]]; do
-    # 去除首尾空白字符
     line=$(echo "$line" | xargs)
     [[ -z "$line" ]] && continue
 
-    # 识别分组标记 [GroupName]
     if [[ "$line" == \[*\] ]]; then
         [[ -n "$group_name" ]] && save_group "$group_name" "$temp_file" "$group_raw_count"
         group_name="${line#[}"
@@ -119,37 +115,25 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     
     echo "⬇️  下载：$url"
     
-    # 增强版 curl：伪装成真实浏览器，强制 IPv4，捕获 HTTP 状态码
-    http_code=$(curl -sL --retry 3 --retry-delay 2 \
-        --connect-timeout 15 --max-time 60 \
-        --ipv4 \
-        -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
-        -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8" \
-        -H "Accept-Language: en-US,en;q=0.5" \
-        -H "Referer: https://magicrule.pages.dev/" \
-        -H "DNT: 1" \
-        -H "Connection: keep-alive" \
-        -H "Upgrade-Insecure-Requests: 1" \
-        -w "%{http_code}" \
-        "$url" -o "$tmp")
-    
-    if [[ "$http_code" != "200" ]]; then
-        echo "  ❌ 下载失败 (HTTP $http_code)。可能是 Cloudflare 拦截了数据中心 IP。"
+    if ! curl -sL --fail --retry 3 --retry-delay 2 \
+        --connect-timeout 10 --max-time 60 \
+        "$url" -o "$tmp"; then
+        echo "  ❌ 下载失败"
         rm -f "$tmp"
         continue
     fi
     
     file_size=$(wc -c < "$tmp")
     if [[ "$file_size" -lt 50 ]]; then
-        echo "  ❌ 文件过小 ($file_size 字节)，可能是空文件或错误页面"
+        echo "  ❌ 文件过小 ($file_size 字节)"
         rm -f "$tmp"
         continue
     fi
     
-    # 统一按文本流式处理，兼容 Surge 文本与 Clash YAML 格式
+    # ✅ 统一按文本流式处理，兼容 Surge 文本与 Clash YAML 格式
     process_rules < "$tmp" >> "$temp_file" 2>/dev/null || true
     
-    # 统计条数 (以清洗前的原始行数为基准累加)
+    # 统计条数
     rule_count=$(wc -l < "$tmp")
     echo "  📊 原始行数：$rule_count 行"
     group_raw_count=$((group_raw_count + rule_count))
@@ -157,7 +141,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     rm -f "$tmp"
 done < "$source_list"
 
-# 处理最后一个分组
 [[ -n "$group_name" ]] && save_group "$group_name" "$temp_file" "$group_raw_count"
 
 echo ""
@@ -166,7 +149,7 @@ echo "所有规则集生成完成"
 echo "═══════════════════════════════════"
 
 if [[ "$has_changes" == "true" ]]; then
-    echo "✅ 检测到变化，需要提交"
+    echo "检测到变化，需要提交"
 else
-    echo "ℹ️  无变化，无需提交"
+    echo "无变化，无需提交"
 fi
